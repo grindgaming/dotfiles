@@ -54,6 +54,7 @@ networkmanager
 nvidia-open-dkms
 nvidia-prime
 nvidia-utils
+nvtop
 nwg-displays
 nwg-look
 otf-font-awesome
