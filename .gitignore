@@ -1,4 +1,3 @@
 # Hardware-spezifische ML4W-Dateien ignorieren
 .config/hypr/conf/monitor.lua
 .config/hypr/conf/environment.lua
-.config/hypr/conf/keyboard.lua
