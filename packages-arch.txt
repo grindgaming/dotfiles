@@ -7,6 +7,7 @@ breeze
 brightnessctl
 btop
 cliphist
+code
 dolphin
 dunst
 efibootmgr
@@ -15,6 +16,7 @@ fastfetch
 figlet
 firefox
 flatpak
+freerdp
 fzf
 git
 gnome-text-editor
@@ -38,6 +40,7 @@ jq
 kitty
 lib32-nvidia-utils
 libva-intel-driver
+libvncserver
 linux
 linux-firmware
 linux-headers
@@ -51,6 +54,7 @@ nautilus
 neovim
 network-manager-applet
 networkmanager
+networkmanager-openvpn
 nvidia-open-dkms
 nvidia-prime
 nvidia-utils
@@ -69,6 +73,7 @@ qt6-virtualkeyboard
 qt6-wayland
 qt6ct
 quickshell
+remmina
 rofi
 rsync
 rust
