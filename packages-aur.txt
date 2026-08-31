@@ -1,3 +1,4 @@
+enlighten-git
 grimblast-git
 hyprsysteminfo
 python-pywalfox

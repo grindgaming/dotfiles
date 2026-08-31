@@ -11,6 +11,7 @@ code
 dolphin
 dunst
 efibootmgr
+evtest
 eza
 fastfetch
 figlet
@@ -96,6 +97,7 @@ vulkan-intel
 vulkan-nouveau
 vulkan-radeon
 waybar
+wev
 wget
 wofi
 wpa_supplicant
