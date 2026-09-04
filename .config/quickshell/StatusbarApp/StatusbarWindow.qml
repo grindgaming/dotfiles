@@ -266,6 +266,7 @@ PanelWindow {
     Component { id: cLogo;       Ml4wLogoModule {} }
     Component { id: cPower;      PowerModule {} }
     Component { id: cVolume;     VolumeModule {} }
+    Component { id: cBacklight; BacklightModule {} }
     Component {
         id: cUpdates
         UpdatesModule {
@@ -295,6 +296,7 @@ PanelWindow {
         "power":      cPower,
         "updates":      cUpdates,
         "volume":       cVolume,
+        "backlight": cBacklight,
         "battery":      cBattery,
         "powerprofile": cPowerProfile
     })
