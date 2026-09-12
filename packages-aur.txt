@@ -1,6 +1,7 @@
 enlighten-git
 grimblast-git
 hyprsysteminfo
+linux-wallpaperengine-git
 python-pywalfox
 python-screeninfo
 yay-bin
