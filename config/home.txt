@@ -7,6 +7,7 @@
 .config/bashrc
 .zshrc
 .config/zshrc
+.config/fish
 .config/ohmyposh
 
 # ML4W / Hyprland / Oberfläche
@@ -23,6 +24,7 @@
 .config/matugen
 .config/fastfetch
 .config/uwsm
+.config/walker
 
 # Aussehen GTK / Qt
 .config/gtk-3.0
@@ -32,6 +34,7 @@
 
 # Programme
 .config/nvim
+.config/vim
 .config/btop
 .config/Code/User/settings.json
 .config/Code/User/keybindings.json

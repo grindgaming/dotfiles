@@ -19,7 +19,8 @@ backup_home() {
     while IFS= read -r path; do
         if [[ -e $HOME/$path ]]; then
             # --relative behält den Pfad bei, --delete hält das Repo synchron
-            rsync -a --relative --delete --delete-excluded \
+            # --copy-links: ML4W verlinkt viele Configs nach ~/.mydotfiles, gesichert wird der Inhalt
+            rsync -a --copy-links --relative --delete --delete-excluded \
                 --exclude-from="$REPO/config/exclude.txt" \
                 "$HOME/./$path" "$REPO/home/"
         else

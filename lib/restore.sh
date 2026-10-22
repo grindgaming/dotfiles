@@ -64,7 +64,8 @@ restore_home() {
     local backup_dir
     backup_dir="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
     # Überschriebene Dateien landen in $backup_dir
-    rsync -a --backup --backup-dir="$backup_dir" "$REPO/home/" "$HOME/"
+    # --keep-dirlinks: vorhandene ML4W-Links nach ~/.mydotfiles bleiben erhalten
+    rsync -a --keep-dirlinks --backup --backup-dir="$backup_dir" "$REPO/home/" "$HOME/"
     if [[ -d $backup_dir ]]; then
         info "Vorherige Versionen gesichert in $backup_dir"
     fi
