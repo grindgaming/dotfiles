@@ -1,0 +1,13 @@
+bluetooth.service
+docker.service
+getty@.service
+NetworkManager-dispatcher.service
+NetworkManager.service
+NetworkManager-wait-online.service
+nvidia-hibernate.service
+nvidia-resume.service
+nvidia-suspend.service
+ollama.service
+sddm.service
+systemd-timesyncd.service
+systemd-userdbd.socket

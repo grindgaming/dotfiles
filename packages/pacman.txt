@@ -5,8 +5,11 @@ blueman
 breeze
 brightnessctl
 btop
+btrfs-progs
 cliphist
 code
+docker
+docker-compose
 dolphin
 dunst
 efibootmgr
@@ -31,6 +34,7 @@ hyprland
 hyprlock
 hyprpaper
 hyprpicker
+hyprpolkitagent
 hyprshutdown
 hyprsunset
 imagemagick
@@ -49,9 +53,10 @@ mkinitcpio
 nano
 nautilus
 neovim
-network-manager-applet
 networkmanager
+network-manager-applet
 networkmanager-openvpn
+noto-fonts-emoji
 nvtop
 nwg-displays
 nwg-look
@@ -63,10 +68,11 @@ polkit-kde-agent
 power-profiles-daemon
 pulseaudio
 python-pip
+python-pipx
 qt5-wayland
+qt6ct
 qt6-virtualkeyboard
 qt6-wayland
-qt6ct
 quickshell
 remmina
 rofi
@@ -79,8 +85,10 @@ sudo
 swaync
 tesseract
 tesseract-data-eng
+tmux
 ttf-firacode-nerd
 ttf-jetbrains-mono-nerd
+ttf-nerd-fonts-symbols
 tumbler
 udiskie
 unzip
@@ -90,6 +98,7 @@ vlc
 waybar
 wev
 wget
+woff2-font-awesome
 wofi
 wpa_supplicant
 xclip

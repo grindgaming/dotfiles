@@ -1,0 +1,12 @@
+[Default Applications]
+text/x-python=code-oss.desktop
+text/x-lua=code-oss.desktop
+application/x-zerosize=code-oss.desktop
+application/yaml=code-oss.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+
+[Added Associations]
+text/x-python=code-oss.desktop;
+text/x-lua=code-oss.desktop;
+application/x-zerosize=code-oss.desktop;
+application/yaml=code-oss.desktop;

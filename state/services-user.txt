@@ -1,0 +1,4 @@
+p11-kit-server.socket
+pipewire.socket
+pulseaudio.socket
+xdg-user-dirs.service
