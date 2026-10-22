@@ -28,6 +28,8 @@ Backup ab.
 
 ## Wiederherstellen auf einer frischen Arch-Installation
 
+Schritt-für-Schritt-Anleitung mit allen Rückfragen und Fehlerbehebung: [WIEDERHERSTELLEN.md](WIEDERHERSTELLEN.md)
+
 Voraussetzung: ein installiertes Arch (z.B. per `archinstall`) mit Benutzer, `sudo` und Internet.
 
 ```bash
