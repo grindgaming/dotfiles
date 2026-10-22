@@ -1,0 +1,46 @@
+# Pfade relativ zu $HOME, die bei "dotfiles backup" gesichert werden.
+# Nicht vorhandene Pfade werden übersprungen. Ordner werden komplett gespiegelt
+# (abzüglich config/exclude.txt).
+
+# Shell
+.bashrc
+.config/bashrc
+.zshrc
+.config/zshrc
+.config/ohmyposh
+
+# ML4W / Hyprland / Oberfläche
+.config/hypr
+.config/ml4w
+.config/quickshell
+.config/waybar
+.config/rofi
+.config/kitty
+.config/swaync
+.config/dunst
+.config/wlogout
+.config/nwg-dock-hyprland
+.config/matugen
+.config/fastfetch
+.config/uwsm
+
+# Aussehen GTK / Qt
+.config/gtk-3.0
+.config/gtk-4.0
+.config/qt6ct
+.config/xsettingsd
+
+# Programme
+.config/nvim
+.config/btop
+.config/Code/User/settings.json
+.config/Code/User/keybindings.json
+.config/Code/User/snippets
+.config/mimeapps.list
+.local/share/applications
+
+# Eigene systemd-User-Units (z.B. das dotfiles-Autobackup)
+.config/systemd/user
+
+# Git
+.gitconfig

@@ -1,0 +1,26 @@
+# rsync-Ausschlussmuster für das Backup aus $HOME.
+# Mit führendem "/" relativ zu $HOME, sonst überall.
+
+# Rechnerspezifisch: werden bei "dotfiles restore" passend zur Hardware neu erzeugt
+/.config/hypr/conf/monitor.lua
+/.config/hypr/conf/environment.lua
+
+# Caches, Logs, Laufzeitdaten
+.git/
+__pycache__/
+Cache/
+CachedData/
+*.log
+*.dotfiles-bak
+*.target.wants/
+
+# Geheimnisse – gehören niemals in ein Git-Repo
+.ssh/
+.gnupg/
+id_rsa*
+id_ed25519*
+*.pem
+*.key
+*.p12
+.netrc
+.git-credentials

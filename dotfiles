@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+#      _       _    __ _ _
+#   __| | ___ | |_ / _(_) | ___  ___
+#  / _` |/ _ \| __| |_| | |/ _ \/ __|
+# | (_| | (_) | |_|  _| | |  __/\__ \
+#  \__,_|\___/ \__|_| |_|_|\___||___/
+#
+# Arch Linux Zustand sichern (GitHub) und auf beliebiger Hardware wiederherstellen.
+
+set -euo pipefail
+
+REPO=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)
+export REPO
+
+source "$REPO/lib/common.sh"
+source "$REPO/lib/hardware.sh"
+source "$REPO/lib/backup.sh"
+source "$REPO/lib/restore.sh"
+
+usage() {
+    cat <<EOF
+Verwendung: dotfiles <befehl> [optionen]
+
+Befehle:
+  backup              Zustand sichern, committen und nach GitHub pushen
+      --no-push         nur lokal committen
+      -m <text>         eigene Commit-Nachricht
+  restore             Zustand aus dem Repo wiederherstellen (auch auf frischem Arch)
+      -y, --yes         keine Rückfragen
+      --mainmod alt|super
+      --skip-packages   nur Configs, /etc und Dienste
+  status              Unterschiede zwischen System und letztem Backup anzeigen
+  hardware            erkannte Hardware und passende Treiber-Pakete anzeigen
+  autobackup on|off   tägliches automatisches Backup (systemd-Timer)
+EOF
+}
+
+cmd_status() {
+    msg "Pakete installiert, aber nicht im Backup"
+    comm -23 <(pacman -Qqe | filter_hw | grep -v -- '-debug$' | sort -u) \
+             <(cat "$REPO/packages/pacman.txt" "$REPO/packages/aur.txt" | sort -u) | sed 's/^/    /'
+    msg "Pakete im Backup, aber nicht installiert"
+    comm -13 <(pacman -Qq | sort -u) \
+             <(cat "$REPO/packages/pacman.txt" "$REPO/packages/aur.txt" | sort -u) | sed 's/^/    /'
+    msg "Repo"
+    git -C "$REPO" status --short --branch
+}
+
+cmd_hardware() {
+    msg "Erkannte Hardware"
+    hw_summary
+    msg "Treiber-Pakete für diesen Rechner"
+    hw_packages | sort -u | sed 's/^/    /'
+    msg "ML4W-Umgebung: $(hw_ml4w_environment)"
+}
+
+cmd_autobackup() {
+    local unit_dir=$HOME/.config/systemd/user
+    case ${1:-} in
+        on)
+            mkdir -p "$unit_dir"
+            cat > "$unit_dir/dotfiles-backup.service" <<'EOF'
+[Unit]
+Description=dotfiles: Systemzustand nach GitHub sichern
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dotfiles backup
+EOF
+            cat > "$unit_dir/dotfiles-backup.timer" <<'EOF'
+[Unit]
+Description=dotfiles: tägliches Backup
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target
+EOF
+            systemctl --user daemon-reload
+            systemctl --user enable --now dotfiles-backup.timer
+            msg "Automatisches Backup aktiv (täglich). Logs: journalctl --user -u dotfiles-backup"
+            ;;
+        off)
+            systemctl --user disable --now dotfiles-backup.timer 2>/dev/null || true
+            rm -f "$unit_dir/dotfiles-backup.service" "$unit_dir/dotfiles-backup.timer"
+            systemctl --user daemon-reload
+            msg "Automatisches Backup deaktiviert."
+            ;;
+        *) die "Verwendung: dotfiles autobackup on|off" ;;
+    esac
+}
+
+command=${1:-help}
+shift || true
+case $command in
+    backup)     cmd_backup "$@" ;;
+    restore)    cmd_restore "$@" ;;
+    status)     cmd_status ;;
+    hardware)   cmd_hardware ;;
+    autobackup) cmd_autobackup "$@" ;;
+    help|-h|--help) usage ;;
+    *) usage; exit 1 ;;
+esac

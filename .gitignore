@@ -1,3 +1,6 @@
-# Hardware-spezifische ML4W-Dateien ignorieren
-.config/hypr/conf/monitor.lua
-.config/hypr/conf/environment.lua
+# Rechnerspezifische ML4W-Dateien (werden bei "dotfiles restore" erzeugt)
+home/.config/hypr/conf/monitor.lua
+home/.config/hypr/conf/environment.lua
+
+# Sicherungskopien
+*.dotfiles-bak

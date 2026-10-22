@@ -1,0 +1,13 @@
+# Systemdateien (unter /etc), die gesichert und wiederhergestellt werden.
+# Nur hardware-unabhängige Dateien eintragen! Nicht hierher gehören z.B.
+# fstab, hostname, mkinitcpio.conf, modprobe.d, NetworkManager (WLAN-Passwörter).
+# pacman.conf wird bei der Wiederherstellung gezielt angepasst (multilib, Color).
+
+/etc/locale.gen
+/etc/locale.conf
+/etc/vconsole.conf
+/etc/X11/xorg.conf.d/00-keyboard.conf
+/etc/systemd/zram-generator.conf
+/etc/sddm.conf
+/etc/sddm.conf.d
+/etc/pacman.d/hooks

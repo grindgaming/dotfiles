@@ -1,0 +1,14 @@
+# Reguläre Ausdrücke (grep -E) für hardware-spezifische Pakete.
+# Diese werden beim Backup NICHT in die Paketlisten geschrieben, sondern bei
+# "dotfiles restore" anhand der erkannten Hardware neu gewählt (lib/hardware.sh).
+
+^(amd|intel)-ucode$
+nvidia
+^egl-wayland$
+^vulkan-(intel|radeon|nouveau)$
+^lib32-vulkan-(intel|radeon|nouveau)$
+^xf86-video-
+^intel-media-driver$
+^libva-intel-driver$
+^(qemu-guest-agent|spice-vdagent|virtualbox-guest-utils|open-vm-tools)$
+^broadcom-wl

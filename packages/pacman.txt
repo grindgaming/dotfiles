@@ -1,4 +1,3 @@
-amd-ucode
 awww
 base
 base-devel
@@ -36,11 +35,8 @@ hyprshutdown
 hyprsunset
 imagemagick
 inotify-tools
-intel-media-driver
 jq
 kitty
-lib32-nvidia-utils
-libva-intel-driver
 libvncserver
 linux
 linux-firmware
@@ -56,9 +52,6 @@ neovim
 network-manager-applet
 networkmanager
 networkmanager-openvpn
-nvidia-open-dkms
-nvidia-prime
-nvidia-utils
 nvtop
 nwg-displays
 nwg-look
@@ -94,9 +87,6 @@ unzip
 uwsm
 vim
 vlc
-vulkan-intel
-vulkan-nouveau
-vulkan-radeon
 waybar
 wev
 wget
@@ -105,8 +95,5 @@ wpa_supplicant
 xclip
 xdg-desktop-portal-hyprland
 xdg-utils
-xf86-video-amdgpu
-xf86-video-ati
-xf86-video-nouveau
 zram-generator
 zsh
