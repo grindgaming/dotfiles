@@ -12,6 +12,9 @@ set -euo pipefail
 REPO=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)
 export REPO
 
+# Einheitliche Sortierung für Paketlisten und comm, unabhängig von der Sprache
+export LC_COLLATE=C
+
 source "$REPO/lib/common.sh"
 source "$REPO/lib/hardware.sh"
 source "$REPO/lib/backup.sh"
