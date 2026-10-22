@@ -53,8 +53,8 @@ mkinitcpio
 nano
 nautilus
 neovim
-networkmanager
 network-manager-applet
+networkmanager
 networkmanager-openvpn
 noto-fonts-emoji
 nvtop
@@ -70,9 +70,9 @@ pulseaudio
 python-pip
 python-pipx
 qt5-wayland
-qt6ct
 qt6-virtualkeyboard
 qt6-wayland
+qt6ct
 quickshell
 remmina
 rofi
