@@ -33,7 +33,7 @@ Schritt-für-Schritt-Anleitung mit allen Rückfragen und Fehlerbehebung: [WIEDER
 Voraussetzung: ein installiertes Arch (z.B. per `archinstall`) mit Benutzer, `sudo` und Internet.
 
 ```bash
-sudo pacman -S --needed git
+sudo pacman -Syu --needed git
 git clone https://github.com/grindgaming/dotfiles ~/dotfiles
 ~/dotfiles/install.sh                 # mit Rückfragen
 ~/dotfiles/install.sh --yes --mainmod super   # ohne Rückfragen
