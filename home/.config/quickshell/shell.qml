@@ -26,7 +26,15 @@ ShellRoot {
     SidebarWindow {}
     CalendarWindow {}
     WallpaperWindow {}
-    StatusbarWindow {}
+    // One status bar per screen; the first screen's bar owns the IPC handlers.
+    Variants {
+        model: Quickshell.screens
+        StatusbarWindow {
+            required property var modelData
+            screen: modelData
+            primary: Quickshell.screens.indexOf(modelData) === 0
+        }
+    }
     // Creates the dock window only while the dock is enabled in dock.json.
     DockLoader {}
 }

@@ -12,6 +12,9 @@ import qs.CustomTheme
 Rectangle {
     id: updates
 
+    // Disabled on secondary bars so only one handler owns the "updates" target.
+    property bool ipcEnabled: true
+
     // Number of available updates (0 = nothing pending, module hidden).
     property int count: 0
     // True when there is nothing to show. The right Repeater reads this to
@@ -128,6 +131,7 @@ Rectangle {
     // so the module hides itself without waiting for the next poll); `refresh`
     // re-runs the check script on demand.
     IpcHandler {
+        enabled: updates.ipcEnabled
         target: "updates"
         function reset(): void { updates.count = 0 }
         function refresh(): void { updates.refresh() }
