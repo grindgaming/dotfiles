@@ -56,19 +56,17 @@ git clone https://github.com/grindgaming/dotfiles ~/dotfiles
 ```
 
 Das dauert je nach Internet und Rechner etwa **15–40 Minuten**, weil AUR-Pakete kompiliert werden.
-Unterwegs kommen diese Fragen:
+Das Skript läuft ohne pacman-/yay-Rückfragen durch: Signaturschlüssel werden zuerst aktualisiert,
+Paketkonflikte (z.B. `pulseaudio` / `pipewire-pulse`) automatisch zugunsten des Backups gelöst.
+Es gibt nur zwei Eingaben:
 
 | Frage | Antwort |
 |---|---|
-| sudo-Passwort | eigenes Passwort |
-| pacman: „Installation fortsetzen?“ | **Enter** |
-| Konflikt `pulseaudio` / `pipewire-pulse` | **j** (wie auf dem bisherigen System) |
-| Auswahl bei mehreren Anbietern (z.B. Schriftarten) | **Enter** (Standard) |
-| „Diese Dateien nach /etc übernehmen?“ | **Enter** (ja) |
+| sudo-Passwort (einmal am Anfang) | eigenes Passwort |
 | mainMod-Taste | **1** Alt, **2** Super, **Enter** = wie im Backup |
 
-Ohne Rückfragen: `~/dotfiles/install.sh --yes --mainmod alt`. Bei Konflikten ist die Variante mit
-Rückfragen aber übersichtlicher.
+Komplett ohne Eingaben: `~/dotfiles/install.sh --mainmod alt` (oder `super`).
+Pakete, die sich nicht installieren ließen, stehen am Ende in einer Zusammenfassung.
 
 Wenn am Ende **„System wiederhergestellt! Bitte neu starten.“** erscheint:
 
@@ -98,6 +96,9 @@ Es erscheint der **SDDM-Anmeldebildschirm**: anmelden und **Hyprland** wählen.
 - **AUR-Paket schlägt fehl:** Das Skript macht weiter und listet die fehlgeschlagenen Pakete am Ende auf.
   Nachinstallieren mit `yay -S paketname`.
 - **Pakete werden „übersprungen“:** Diese gibt es auf dieser Hardware nicht (z.B. `lib32-*` auf ARM). Gewollt.
+- **„signature … is unknown trust“ / „ungültiges oder beschädigtes Paket“:** Das Skript aktualisiert
+  den Schlüsselbund automatisch. Tritt der Fehler trotzdem auf, stimmt meist die Uhrzeit nicht:
+  `timedatectl` prüfen, dann `sudo pacman -Sy archlinux-keyring` und das Skript erneut starten.
 - **Skript bricht ab:** Einfach erneut `~/dotfiles/install.sh` starten. Bereits Installiertes wird übersprungen.
 - **Ältere Nvidia-Karte** (vor RTX 20xx/GTX 16xx): Der automatisch gewählte Treiber `nvidia-open-dkms`
   passt nicht, hier wird ein Legacy-Treiber aus dem AUR benötigt.

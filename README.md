@@ -35,13 +35,13 @@ Voraussetzung: ein installiertes Arch (z.B. per `archinstall`) mit Benutzer, `su
 ```bash
 sudo pacman -Syu --needed git
 git clone https://github.com/grindgaming/dotfiles ~/dotfiles
-~/dotfiles/install.sh                 # mit Rückfragen
-~/dotfiles/install.sh --yes --mainmod super   # ohne Rückfragen
+~/dotfiles/install.sh                  # fragt nur nach der mainMod-Taste
+~/dotfiles/install.sh --mainmod super  # ganz ohne Eingaben
 ```
 
 Ablauf:
 
-1. `pacman.conf`: multilib (nur x86_64), Color, ParallelDownloads
+1. Uhrzeit (NTP) und Signaturschlüssel aktualisieren, `pacman.conf`: multilib (nur x86_64), Color, ParallelDownloads
 2. Hardware erkennen (`dotfiles hardware` zeigt das Ergebnis vorab)
 3. Offizielle Pakete installieren, dabei Pakete überspringen, die es auf der Architektur nicht
    gibt (z.B. `lib32-*` auf ARM)

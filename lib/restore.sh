@@ -1,5 +1,36 @@
 # dotfiles restore – Zustand aus dem Repo auf einem (frischen) Arch-System herstellen
 
+# Pakete, die nicht installiert werden konnten (Zusammenfassung am Ende)
+RESTORE_FAILED=()
+
+# pacman ohne Rückfragen. --ask 4 beantwortet auch Paketkonflikte mit "Ja"
+# (Standard wäre "Nein" und würde mit --noconfirm die ganze Installation abbrechen).
+pac() { sudo pacman --noconfirm --ask 4 "$@"; }
+
+# Hält die sudo-Anmeldung aktiv, damit lange AUR-Builds nicht erneut nach dem Passwort fragen
+sudo_keepalive() {
+    while kill -0 "$$" 2>/dev/null; do
+        sudo -n -v 2>/dev/null || true
+        sleep 50
+    done &
+}
+
+# Veraltete Signaturschlüssel vom Installationsmedium führen zu
+# "signature ... is unknown trust" bzw. "ungültiges oder beschädigtes Paket"
+restore_keyring() {
+    msg "Systemzeit und Paket-Signaturschlüssel"
+    # Eine falsch gehende Uhr lässt Signaturen ebenfalls ungültig erscheinen
+    sudo timedatectl set-ntp true 2>/dev/null || true
+    if ! sudo pacman-key --list-keys &>/dev/null; then
+        sudo pacman-key --init
+        sudo pacman-key --populate
+    fi
+    local keyrings
+    keyrings=$(pacman -Qq | grep -- '-keyring$' || true)
+    # shellcheck disable=SC2086
+    pac -Sy --needed $keyrings
+}
+
 restore_pacman_conf() {
     msg "pacman.conf"
     # multilib gibt es nur auf x86_64 (für lib32-Pakete, Steam usw.)
@@ -8,7 +39,7 @@ restore_pacman_conf() {
         info "multilib aktiviert"
     fi
     sudo sed -i -e 's/^#Color/Color/' -e 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-    sudo pacman -Syu --needed ${NOCONFIRM:+--noconfirm} git base-devel rsync
+    pac -Syu --needed git base-devel rsync
 }
 
 restore_yay() {
@@ -36,22 +67,29 @@ restore_packages() {
         warn "Auf dieser Architektur/in diesen Repos nicht verfügbar, übersprungen: $(paste -sd" " <<<"$missing")"
     fi
     # shellcheck disable=SC2086
-    sudo pacman -S --needed ${NOCONFIRM:+--noconfirm} $install
+    if ! pac -S --needed $install; then
+        # Ein einzelnes Problempaket soll nicht alle anderen verhindern
+        warn "Gemeinsame Installation fehlgeschlagen – installiere die Pakete einzeln"
+        local pkg
+        for pkg in $install; do
+            pacman -Qq "$pkg" &>/dev/null && continue
+            pac -S --needed "$pkg" >/dev/null || RESTORE_FAILED+=("$pkg")
+        done
+    fi
 
     msg "AUR-Pakete"
     restore_yay
-    local pkg failed=()
+    local pkg
     while IFS= read -r pkg; do
         [[ $pkg == yay* ]] && continue
         pacman -Qq "$pkg" &>/dev/null && continue
-        yay -S --needed ${NOCONFIRM:+--noconfirm --answerdiff None --answerclean None} "$pkg" \
-            || failed+=("$pkg")
+        yay -S --needed --noconfirm --answerdiff None --answerclean None --answeredit None \
+            --removemake --cleanafter "$pkg" || RESTORE_FAILED+=("$pkg (AUR)")
     done < <(read_list "$REPO/packages/aur.txt")
-    (( ${#failed[@]} == 0 )) || warn "AUR-Pakete fehlgeschlagen: ${failed[*]}"
 
     if [[ -s $REPO/packages/flatpak.txt ]]; then
         msg "Flatpaks"
-        sudo pacman -S --needed --noconfirm flatpak
+        pac -S --needed flatpak
         flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
         # shellcheck disable=SC2046
         flatpak install --user -y --noninteractive flathub $(read_list "$REPO/packages/flatpak.txt") \
@@ -75,7 +113,7 @@ restore_etc() {
     [[ -d $REPO/system/etc ]] || return 0
     msg "Systemdateien nach /etc kopieren"
     (cd "$REPO/system" && find etc -type f | sed 's|^|    /|')
-    ask "Diese Dateien nach /etc übernehmen? (Originale bekommen die Endung .dotfiles-bak)" y || return 0
+    info "(Ersetzte Originale behalten die Endung .dotfiles-bak)"
     sudo rsync -rlpt --chown=root:root --backup --suffix=.dotfiles-bak "$REPO/system/etc/" /etc/
     if [[ -f $REPO/system/etc/locale.gen ]]; then
         sudo locale-gen
@@ -175,7 +213,7 @@ cmd_restore() {
     local mainmod="" skip_packages=0
     while (( $# )); do
         case $1 in
-            -y|--yes)        ASSUME_YES=1; NOCONFIRM=1 ;;
+            -y|--yes)        ASSUME_YES=1 ;;
             --mainmod)       mainmod=$2; shift ;;
             --skip-packages) skip_packages=1 ;;
             *) die "Unbekannte Option für restore: $1" ;;
@@ -184,9 +222,11 @@ cmd_restore() {
     done
     require_user
     sudo -v || die "sudo wird benötigt."
+    sudo_keepalive
 
     msg "Stelle Arch Linux Setup wieder her"
     if (( ! skip_packages )); then
+        restore_keyring
         restore_pacman_conf
         restore_packages
     fi
@@ -198,5 +238,9 @@ cmd_restore() {
     link_cli
 
     echo
+    if (( ${#RESTORE_FAILED[@]} )); then
+        warn "Nicht installiert: ${RESTORE_FAILED[*]}"
+        info "Später nachinstallieren mit: yay -S <paket>"
+    fi
     msg "System wiederhergestellt! Bitte neu starten."
 }

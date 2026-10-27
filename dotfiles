@@ -29,7 +29,7 @@ Befehle:
       --no-push         nur lokal committen
       -m <text>         eigene Commit-Nachricht
   restore             Zustand aus dem Repo wiederherstellen (auch auf frischem Arch)
-      -y, --yes         keine Rückfragen
+      -y, --yes         nicht nach der mainMod-Taste fragen (beibehalten)
       --mainmod alt|super
       --skip-packages   nur Configs, /etc und Dienste
   status              Unterschiede zwischen System und letztem Backup anzeigen
