@@ -143,6 +143,20 @@ restore_machine_files() {
     fi
 }
 
+# Aktives Wallpaper: ml4w-autostart setzt beim nächsten Login das Bild aus dieser Cache-Datei
+restore_wallpaper() {
+    local wp
+    wp=$(read_list "$REPO/state/wallpaper.txt")
+    [[ -n $wp ]] || return 0
+    if [[ ! -f $HOME/$wp ]]; then
+        warn "Wallpaper ~/$wp nicht vorhanden, ML4W nimmt das Standardbild"
+        return 0
+    fi
+    mkdir -p "$HOME/.cache/ml4w/hyprland-dotfiles"
+    echo "$HOME/$wp" > "$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper"
+    info "Wallpaper: ~/$wp"
+}
+
 restore_mainmod() {
     local choice=$1 variant
     local file=$HOME/.config/hypr/conf/keybinding.lua
@@ -233,6 +247,7 @@ cmd_restore() {
     restore_home
     restore_etc
     restore_machine_files
+    restore_wallpaper
     restore_mainmod "$mainmod"
     restore_state
     link_cli

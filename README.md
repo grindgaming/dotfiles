@@ -19,7 +19,7 @@ Gesichert werden:
 | Explizit installierte Pakete (offiziell, AUR, Flatpak) | `packages/` | – |
 | Configs aus `$HOME` (hypr, ml4w, waybar, rofi, kitty, …) | `home/` | `config/home.txt` |
 | Ausgewählte Systemdateien (Locale, Tastatur, SDDM, zram) | `system/etc/` | `config/etc.txt` |
-| Aktivierte Dienste, Gruppen, Login-Shell, Zeitzone, VS-Code-Erweiterungen | `state/` | – |
+| Aktivierte Dienste, Gruppen, Login-Shell, Zeitzone, VS-Code-Erweiterungen, aktives Wallpaper | `state/` | – |
 
 Hardware-spezifische Pakete (CPU-Microcode, Nvidia/AMD/Intel-Treiber, VM-Tools) werden **nicht**
 gespeichert (`config/hardware-packages.txt`), sondern bei der Wiederherstellung neu erkannt.

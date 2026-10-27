@@ -42,6 +42,25 @@ backup_etc() {
     done < <(read_list "$REPO/config/etc.txt")
 }
 
+# Aktives ML4W-Wallpaper, relativ zu $HOME (funktioniert auch mit anderem Benutzernamen).
+# Nur Bilder in gesicherten Ordnern sind sinnvoll, sonst fehlt die Datei beim Wiederherstellen.
+backup_wallpaper() {
+    local cache=$HOME/.cache/ml4w/hyprland-dotfiles/current_wallpaper wp
+    [[ -f $cache ]] || return 0
+    wp=$(< "$cache")
+    if [[ $wp != "$HOME"/* ]]; then
+        warn "Wallpaper liegt außerhalb von \$HOME, nicht gesichert: $wp"
+        return 0
+    fi
+    wp=${wp#"$HOME"/}
+    local path saved=0
+    while IFS= read -r path; do
+        [[ $wp == "$path" || $wp == "$path"/* ]] && saved=1
+    done < <(read_list "$REPO/config/home.txt")
+    (( saved )) || warn "Wallpaper liegt nicht in einem gesicherten Ordner (config/home.txt): ~/$wp"
+    echo "$wp" > "$REPO/state/wallpaper.txt"
+}
+
 backup_state() {
     msg "Dienste, Gruppen, Shell, Zeitzone"
     systemctl list-unit-files --state=enabled --type=service,socket,timer --no-legend 2>/dev/null \
@@ -51,6 +70,7 @@ backup_state() {
     id -nG | tr ' ' '\n' | grep -vx "$(id -gn)" | sort -u > "$REPO/state/groups.txt"
     getent passwd "$USER" | cut -d: -f7 > "$REPO/state/shell.txt"
     readlink /etc/localtime | sed 's|.*/zoneinfo/||' > "$REPO/state/timezone.txt"
+    backup_wallpaper
     if command -v code >/dev/null; then
         code --list-extensions 2>/dev/null | sort -u > "$REPO/state/vscode-extensions.txt" || true
     fi
