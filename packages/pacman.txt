@@ -2,6 +2,7 @@ awww
 base
 base-devel
 blueman
+bluez-utils
 breeze
 brightnessctl
 btop
@@ -63,10 +64,10 @@ nwg-look
 otf-font-awesome
 pacman-contrib
 pavucontrol
+pipewire-pulse
 polkit-gnome
 polkit-kde-agent
 power-profiles-daemon
-pulseaudio
 python-pip
 python-pipx
 qt5-wayland
@@ -98,6 +99,7 @@ vlc
 waybar
 wev
 wget
+wireplumber
 woff2-font-awesome
 wofi
 wpa_supplicant

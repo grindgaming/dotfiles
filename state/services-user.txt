@@ -1,4 +1,8 @@
+odysseus.service
 p11-kit-server.socket
+pipewire-pulse.service
+pipewire-pulse.socket
+pipewire.service
 pipewire.socket
-pulseaudio.socket
+wireplumber.service
 xdg-user-dirs.service

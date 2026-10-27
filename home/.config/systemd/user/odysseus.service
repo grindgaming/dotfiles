@@ -1,0 +1,18 @@
+[Unit]
+Description=Odysseus UI (http://localhost:7011)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/michel/odysseus
+EnvironmentFile=-/home/michel/odysseus/.env
+Environment=APP_PORT=7011
+# ChromaDB + SearXNG (Docker) hochziehen; Fehler blockieren den UI-Start nicht
+ExecStartPre=-/usr/bin/docker compose -f /home/michel/odysseus/docker-compose.yml up -d chromadb searxng
+ExecStart=/home/michel/odysseus/venv/bin/python -m uvicorn app:app --host 127.0.0.1 --port 7011
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

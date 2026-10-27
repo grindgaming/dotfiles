@@ -12,3 +12,18 @@ hl.monitor({
     position = "auto",
     scale = 1
 })
+
+-- External monitor above the laptop display
+hl.monitor({
+    output = "eDP-1",
+    mode = "preferred",
+    position = "0x0",
+    scale = 1
+})
+
+hl.monitor({
+    output = "HDMI-A-1",
+    mode = "preferred",
+    position = "0x-1080",
+    scale = 1
+})

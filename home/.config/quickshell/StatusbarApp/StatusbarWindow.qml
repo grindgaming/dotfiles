@@ -10,6 +10,9 @@ import qs.CustomTheme
 PanelWindow {
     id: root
 
+    // Only the primary bar registers the IPC handlers (one bar runs per screen).
+    property bool primary: true
+
     // --- WAYLAND CONFIGURATION ---
     WlrLayershell.layer: WlrLayer.Top
     // Keyboard focus is owned by the HyprlandFocusGrab below (the same primitive
@@ -71,6 +74,8 @@ PanelWindow {
         path: Quickshell.env("HOME") + "/.config/ml4w-statusbar/statusbar.json"
         blockLoading: true
         printErrors: false
+        watchChanges: true
+        onFileChanged: reload()
         onLoaded: { root.overrideExists = true; root.applySettings() }
         onLoadFailed: { root.overrideExists = false; root.applySettings() }
     }
@@ -83,6 +88,9 @@ PanelWindow {
         id: settingsFile
         path: Quickshell.env("HOME") + "/.config/ml4w/settings/statusbar.json"
         blockLoading: true
+        // Keep the bars on all screens in sync when one of them writes the file.
+        watchChanges: true
+        onFileChanged: reload()
         onLoaded: root.applySettings()
     }
 
@@ -270,6 +278,7 @@ PanelWindow {
     Component {
         id: cUpdates
         UpdatesModule {
+            ipcEnabled: root.primary
             // Rebuild the keyboard navigation list when the module hides or
             // reappears (its collapsed state tracks the available update count).
             onCollapsedChanged: Qt.callLater(root.rebuildNavItems)
@@ -400,6 +409,7 @@ PanelWindow {
     }
 
     IpcHandler {
+        enabled: root.primary
         target: "statusbar"
         function toggle(): void { root.setEnabled(!root.settings.bar.enabled) }
         // Named enable/disable rather than show/hide: "show" is a reserved
