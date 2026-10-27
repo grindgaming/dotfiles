@@ -11,3 +11,8 @@
 /etc/sddm.conf
 /etc/sddm.conf.d
 /etc/pacman.d/hooks
+
+# NVIDIA-dGPU schlafen legen, wenn ungenutzt (Runtime D3). Ausnahme von der
+# Regel oben: greift nur, wenn das nvidia-Modul geladen wird, sonst wirkungslos.
+/etc/modprobe.d/nvidia-pm.conf
+/etc/udev/rules.d/80-nvidia-pm.rules

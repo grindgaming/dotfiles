@@ -461,7 +461,9 @@ PanelWindow {
         // Center the pill within the reserved band. The window is taller than
         // the band (to fit the shadow / expanded pill), so offset accordingly.
         anchors.verticalCenter: parent.verticalCenter
-        anchors.verticalCenterOffset: (root.reservedHeight / 2) - (root.implicitHeight / 2)
+        // The extra -2 nudges the pill closer to the screen edge; paired with a
+        // 4px smaller reservedHeight it keeps the pill-to-window gap unchanged.
+        anchors.verticalCenterOffset: (root.reservedHeight / 2) - (root.implicitHeight / 2) - 2
 
         // Collapsed = sized to content, Expanded = fixed width.
         property bool expanded: hoverHandler.hovered || root.barExpanded

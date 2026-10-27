@@ -47,3 +47,9 @@
 
 # Git
 .gitconfig
+
+# Quickshell-Statusbar: eigene Modul-Anordnung (Override der ML4W-Vorgabe)
+.config/ml4w-statusbar
+
+# Programm gezielt auf der NVIDIA-GPU starten (siehe hypr/custom.lua)
+.local/bin/nvidia-run

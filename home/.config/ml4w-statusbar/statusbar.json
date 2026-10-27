@@ -1,0 +1,28 @@
+{
+    "bar": {
+        "enabled": true,
+        "alwaysExpanded": true,
+        "reservedHeight": 68
+    },
+    "modules": {
+        "left": [
+            "terminal",
+            "workspaces",
+            "updates",
+            "powerprofile"
+        ],
+        "center": [
+            "launcher",
+            "clock",
+            "swaync"
+        ],
+        "right": [
+            "battery",
+            "backlight",
+            "volume",
+            "systemtray",
+            "logo",
+            "power"
+        ]
+    }
+}

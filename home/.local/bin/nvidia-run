@@ -1,0 +1,5 @@
+#!/bin/bash
+# Run a program on the NVIDIA dGPU (undoes the iGPU-only defaults from
+# ~/.config/hypr/custom.lua, then hands off to prime-run).
+unset __EGL_VENDOR_LIBRARY_FILENAMES VK_DRIVER_FILES
+exec prime-run "$@"
