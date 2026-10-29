@@ -65,8 +65,8 @@ end
 -- Slightly more see-through windows.
 hl.config({
     decoration = {
-        active_opacity = 0.85,
-        inactive_opacity = 0.75,
+        active_opacity = 0.75,
+        inactive_opacity = 0.65,
     },
 })
 
