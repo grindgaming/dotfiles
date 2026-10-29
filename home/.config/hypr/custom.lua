@@ -1,13 +1,15 @@
 -- Fill the wallpaper on newly connected monitors
 hl.on("monitor.added", function ()
     hl.exec_cmd("sleep 1 && ~/.config/hypr/scripts/wallpaper-fill.sh")
-    hl.exec_cmd("sleep 2 && ~/.config/hypr/scripts/live-wallpaper.sh")
+    -- Only a restart for monitors plugged in later: at login this event also
+    -- fires for the built-in screen, before hyprland.start has started it
+    hl.exec_cmd("pgrep -x mpvpaper >/dev/null && sleep 2 && ~/.config/hypr/scripts/live-wallpaper.sh")
 end)
 
 hl.on("hyprland.start", function ()
     hl.exec_cmd("sleep 5 && ~/.config/hypr/scripts/wallpaper-fill.sh")
     -- Video wallpaper on top of awww (see scripts/live-wallpaper.sh)
-    hl.exec_cmd("sleep 6 && ~/.config/hypr/scripts/live-wallpaper.sh")
+    hl.exec_cmd("sleep 2 && ~/.config/hypr/scripts/live-wallpaper.sh")
 end)
 
 -- Keep the NVIDIA dGPU asleep: Hyprland and apps use only the AMD iGPU.
