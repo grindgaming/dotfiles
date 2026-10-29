@@ -109,12 +109,68 @@ restore_home() {
     fi
 }
 
+# Schalter pro Rechner, ausgewertet von ~/.config/hypr/custom.lua
+SETTINGS=$HOME/.config/ml4w/settings
+# Lassen die NVIDIA-dGPU im Leerlauf schlafen; nur mit nvidia-dgpu = off
+NVIDIA_PM_FILES=(modprobe.d/nvidia-pm.conf udev/rules.d/80-nvidia-pm.rules)
+
+# NVIDIA-dGPU deaktivieren: Hyprland und Programme laufen nur auf der AMD-iGPU,
+# die NVIDIA-Karte bleibt schlafen (Start auf der dGPU gezielt mit nvidia-run).
+# Vorgabe ist der gesicherte Wert.
+restore_nvidia() {
+    mkdir -p "$SETTINGS"
+    local value=on
+    if hw_has_gpu nvidia; then
+        if hw_has_gpu amd; then
+            local default=y
+            [[ $(read_list "$SETTINGS/nvidia-dgpu") == on ]] && default=n
+            echo
+            ask "NVIDIA-Karte erkannt. Deaktivieren (schläft dauerhaft, alles läuft auf der AMD-iGPU)?" "$default" \
+                && value=off
+        else
+            info "NVIDIA-Karte erkannt, aber keine AMD-iGPU: bleibt aktiv"
+        fi
+    fi
+    echo "$value" > "$SETTINGS/nvidia-dgpu"
+    [[ $value == off ]] && info "NVIDIA-dGPU: deaktiviert" || info "NVIDIA-dGPU: aktiv"
+}
+
+# Beauty- oder Performance-Modus. Performance: kein Blur, keine Schatten und kein
+# Live-Wallpaper-Autostart. Beauty: Einstellungen wie im Backup. Vorgabe ist der gesicherte Wert.
+restore_hardware_mode() {
+    mkdir -p "$SETTINGS"
+    local default=n
+    [[ $(read_list "$SETTINGS/hardware-mode") == performance ]] && default=y
+    echo
+    if ask "Hardwarelast reduzieren (kein Blur, keine Schatten, kein Live-Wallpaper-Autostart)?" "$default"; then
+        echo performance > "$SETTINGS/hardware-mode"
+        echo off > "$SETTINGS/live-wallpaper-autostart"
+        info "Modus: Performance"
+    else
+        echo beauty > "$SETTINGS/hardware-mode"
+        info "Modus: Beauty"
+    fi
+}
+
 restore_etc() {
     [[ -d $REPO/system/etc ]] || return 0
+    local skip=() excludes=() file
+    if [[ $(read_list "$SETTINGS/nvidia-dgpu") != off ]]; then
+        skip=("${NVIDIA_PM_FILES[@]}")
+        for file in "${skip[@]}"; do
+            excludes+=(--exclude="/$file")
+            # Von einer früheren Wiederherstellung angelegte Kopie wieder entfernen
+            if cmp -s "$REPO/system/etc/$file" "/etc/$file"; then
+                sudo rm -f "/etc/$file"
+            fi
+        done
+    fi
     msg "Systemdateien nach /etc kopieren"
-    (cd "$REPO/system" && find etc -type f | sed 's|^|    /|')
+    (cd "$REPO/system/etc" && find . -type f | sed 's|^\./||') \
+        | grep -vxF -f <(printf '%s\n' "${skip[@]}") | sed 's|^|    /etc/|' || true
     info "(Ersetzte Originale behalten die Endung .dotfiles-bak)"
-    sudo rsync -rlpt --chown=root:root --backup --suffix=.dotfiles-bak "$REPO/system/etc/" /etc/
+    sudo rsync -rlpt --chown=root:root --backup --suffix=.dotfiles-bak "${excludes[@]}" \
+        "$REPO/system/etc/" /etc/
     if [[ -f $REPO/system/etc/locale.gen ]]; then
         sudo locale-gen
     fi
@@ -245,6 +301,8 @@ cmd_restore() {
         restore_packages
     fi
     restore_home
+    restore_nvidia
+    restore_hardware_mode
     restore_etc
     restore_machine_files
     restore_wallpaper

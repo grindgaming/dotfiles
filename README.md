@@ -35,8 +35,8 @@ Voraussetzung: ein installiertes Arch (z.B. per `archinstall`) mit Benutzer, `su
 ```bash
 sudo pacman -Syu --needed git
 git clone https://github.com/grindgaming/dotfiles ~/dotfiles
-~/dotfiles/install.sh                  # fragt nur nach der mainMod-Taste
-~/dotfiles/install.sh --mainmod super  # ganz ohne Eingaben
+~/dotfiles/install.sh                     # fragt nach NVIDIA, Modus und mainMod-Taste
+~/dotfiles/install.sh -y --mainmod super  # ganz ohne Eingaben (Werte aus dem Backup)
 ```
 
 Ablauf:
@@ -47,11 +47,19 @@ Ablauf:
    gibt (z.B. `lib32-*` auf ARM)
 4. `yay` installieren, dann die AUR-Pakete und Flatpaks
 5. Configs nach `$HOME` kopieren. Überschriebene Dateien landen in `~/.dotfiles-backup/<datum>/`
-6. Systemdateien nach `/etc` (Originale als `*.dotfiles-bak`), `locale-gen`, Zeitzone
-7. ML4W-Dateien pro Rechner anlegen (`hypr/conf/monitor.lua`, `hypr/conf/environment.lua`)
-8. mainMod-Taste wählen (Alt oder Super/Cmd)
-9. Dienste aktivieren, Gruppen und Shell setzen, VS-Code-Erweiterungen installieren
-10. `dotfiles` nach `~/.local/bin` verlinken
+6. Nur bei erkannter NVIDIA-Karte (mit AMD-iGPU): fragen, ob sie deaktiviert werden soll.
+   Dann schläft sie dauerhaft, alles läuft auf der iGPU, Programme gezielt mit `nvidia-run` auf der dGPU
+7. Fragen, ob die Hardwarelast reduziert werden soll (**Performance**-Modus: kein Blur, keine Schatten,
+   kein Live-Wallpaper-Autostart). Sonst **Beauty**-Modus mit den Einstellungen aus dem Backup
+8. Systemdateien nach `/etc` (Originale als `*.dotfiles-bak`), `locale-gen`, Zeitzone.
+   Die NVIDIA-Stromspar-Dateien nur, wenn die Karte deaktiviert wurde
+9. ML4W-Dateien pro Rechner anlegen (`hypr/conf/monitor.lua`, `hypr/conf/environment.lua`)
+10. mainMod-Taste wählen (Alt oder Super/Cmd)
+11. Dienste aktivieren, Gruppen und Shell setzen, VS-Code-Erweiterungen installieren
+12. `dotfiles` nach `~/.local/bin` verlinken
+
+Die Antworten landen als Schalter in `~/.config/ml4w/settings/` (`nvidia-dgpu`, `hardware-mode`,
+`live-wallpaper-autostart`) und werden mitgesichert. Bei der nächsten Wiederherstellung sind sie die Vorgabe.
 
 Danach neu starten.
 

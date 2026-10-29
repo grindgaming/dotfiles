@@ -58,14 +58,16 @@ git clone https://github.com/grindgaming/dotfiles ~/dotfiles
 Das dauert je nach Internet und Rechner etwa **15–40 Minuten**, weil AUR-Pakete kompiliert werden.
 Das Skript läuft ohne pacman-/yay-Rückfragen durch: Signaturschlüssel werden zuerst aktualisiert,
 Paketkonflikte (z.B. `pulseaudio` / `pipewire-pulse`) automatisch zugunsten des Backups gelöst.
-Es gibt nur zwei Eingaben:
+Es gibt nur diese Eingaben:
 
 | Frage | Antwort |
 |---|---|
 | sudo-Passwort (einmal am Anfang) | eigenes Passwort |
+| NVIDIA-Karte deaktivieren? (nur bei NVIDIA + AMD-iGPU) | **j** = schläft dauerhaft, alles auf der iGPU; **Enter** = wie im Backup |
+| Hardwarelast reduzieren? | **j** = Performance (kein Blur, keine Schatten, kein Live-Wallpaper-Autostart), **n** = Beauty; **Enter** = wie im Backup |
 | mainMod-Taste | **1** Alt, **2** Super, **Enter** = wie im Backup |
 
-Komplett ohne Eingaben: `~/dotfiles/install.sh --mainmod alt` (oder `super`).
+Komplett ohne Eingaben (alles wie im Backup): `~/dotfiles/install.sh -y --mainmod alt` (oder `super`).
 Pakete, die sich nicht installieren ließen, stehen am Ende in einer Zusammenfassung.
 
 Wenn am Ende **„System wiederhergestellt! Bitte neu starten.“** erscheint:

@@ -1,0 +1,7 @@
+# -----------------------------------------------------
+# Live wallpaper (mpvpaper, see ~/.config/hypr/scripts/live-wallpaper.sh)
+# -----------------------------------------------------
+alias livewp-start='setsid -f ~/.config/hypr/scripts/live-wallpaper.sh >/dev/null 2>&1'
+alias livewp-stop='pkill -x mpvpaper'
+alias livewp-autostart-on='echo on > ~/.config/ml4w/settings/live-wallpaper-autostart && echo "Live-Wallpaper-Autostart: an"'
+alias livewp-autostart-off='echo off > ~/.config/ml4w/settings/live-wallpaper-autostart && echo "Live-Wallpaper-Autostart: aus"'
