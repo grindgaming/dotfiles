@@ -234,8 +234,32 @@ restore_mainmod() {
     info "mainMod: $variant"
 }
 
+# Ältere Backups enthielten systemd-Verknüpfungen (z.B. pipewire-session-manager.service,
+# pipewire.service.wants/) als normale Dateien. systemd erwartet dort Symlinks.
+cleanup_user_units() {
+    local dir=$HOME/.config/systemd/user unit sys
+    [[ -d $dir ]] || return 0
+    find "$dir" -mindepth 2 \( -path '*.wants/*' -o -path '*.requires/*' \) ! -type l -print -delete \
+        | sed "s|^$HOME/|    Entfernt: ~/|"
+    for unit in "$dir"/*.service "$dir"/*.socket "$dir"/*.timer; do
+        [[ -f $unit && ! -L $unit ]] || continue
+        # Eine unveränderte Kopie eines System-Units ist immer eine aufgelöste Verknüpfung
+        for sys in /usr/lib/systemd/user/*; do
+            [[ -f $sys ]] || continue
+            if cmp -s "$unit" "$sys"; then
+                rm -f "$unit"
+                info "Entfernt: ~/${unit#"$HOME"/} (Kopie von $sys)"
+                break
+            fi
+        done
+    done
+    find "$dir" -mindepth 1 -type d -empty -delete
+    systemctl --user daemon-reload 2>/dev/null || true
+}
+
 restore_state() {
     msg "Dienste aktivieren"
+    cleanup_user_units
     local unit
     while IFS= read -r unit; do
         systemctl list-unit-files "$unit" --no-legend 2>/dev/null | grep -q . || continue
@@ -291,6 +315,13 @@ cmd_restore() {
         shift
     done
     require_user
+
+    # Komplette Ausgabe zusätzlich in eine Logdatei, um Fehler später nachlesen zu können
+    local log=$HOME/dotfiles-restore.log
+    exec > >(tee -a "$log") 2>&1
+    echo "===== $(date '+%Y-%m-%d %H:%M') dotfiles restore =====" >> "$log"
+    info "Protokoll: $log"
+
     sudo -v || die "sudo wird benötigt."
     sudo_keepalive
 

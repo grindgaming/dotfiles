@@ -18,9 +18,13 @@ backup_home() {
     mkdir -p "$REPO/home"
     while IFS= read -r path; do
         if [[ -e $HOME/$path ]]; then
+            # --copy-links: ML4W verlinkt viele Configs nach ~/.mydotfiles, gesichert wird der Inhalt.
+            # Links in systemd-User-Units sind dagegen Aktivierungen/Aliase von Systemdiensten:
+            # die überspringen (--no-links), restore_state aktiviert die Dienste neu.
+            local links=--copy-links
+            [[ $path == .config/systemd* ]] && links=--no-links
             # --relative behält den Pfad bei, --delete hält das Repo synchron
-            # --copy-links: ML4W verlinkt viele Configs nach ~/.mydotfiles, gesichert wird der Inhalt
-            rsync -a --copy-links --relative --delete --delete-excluded \
+            rsync -aq "$links" --relative --delete --delete-excluded \
                 --exclude-from="$REPO/config/exclude.txt" \
                 "$HOME/./$path" "$REPO/home/"
         else

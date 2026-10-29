@@ -101,6 +101,8 @@ Es erscheint der **SDDM-Anmeldebildschirm**: anmelden und **Hyprland** wählen.
 - **„signature … is unknown trust“ / „ungültiges oder beschädigtes Paket“:** Das Skript aktualisiert
   den Schlüsselbund automatisch. Tritt der Fehler trotzdem auf, stimmt meist die Uhrzeit nicht:
   `timedatectl` prüfen, dann `sudo pacman -Sy archlinux-keyring` und das Skript erneut starten.
+- **Protokoll:** Die komplette Ausgabe steht in `~/dotfiles-restore.log`. Fehler finden mit
+  `grep -n -i -B3 "fehler\|error\|failed" ~/dotfiles-restore.log | less`.
 - **Skript bricht ab:** Einfach erneut `~/dotfiles/install.sh` starten. Bereits Installiertes wird übersprungen.
 - **Ältere Nvidia-Karte** (vor RTX 20xx/GTX 16xx): Der automatisch gewählte Treiber `nvidia-open-dkms`
   passt nicht, hier wird ein Legacy-Treiber aus dem AUR benötigt.

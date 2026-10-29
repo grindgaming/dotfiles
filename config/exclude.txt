@@ -12,7 +12,8 @@ Cache/
 CachedData/
 *.log
 *.dotfiles-bak
-*.target.wants/
+*.wants/
+*.requires/
 
 # Geheimnisse – gehören niemals in ein Git-Repo
 .ssh/
