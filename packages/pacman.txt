@@ -82,6 +82,7 @@ rust
 sddm
 slurp
 smartmontools
+steam
 sudo
 swaync
 tesseract

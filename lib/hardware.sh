@@ -64,9 +64,16 @@ hw_packages() {
     fi
     if hw_has_gpu intel; then
         printf '%s\n' vulkan-intel intel-media-driver libva-intel-driver
+        # 32-Bit-Vulkan für Steam; sonst wählt pacman --noconfirm irgendeinen Anbieter
+        if [[ $arch == x86_64 ]]; then
+            echo lib32-vulkan-intel
+        fi
     fi
     if hw_has_gpu amd; then
         printf '%s\n' vulkan-radeon xf86-video-amdgpu
+        if [[ $arch == x86_64 ]]; then
+            echo lib32-vulkan-radeon
+        fi
     fi
     if hw_has_gpu nvidia; then
         # nvidia-open benötigt eine GPU ab Turing (RTX 20xx / GTX 16xx).
