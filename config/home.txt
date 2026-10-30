@@ -51,5 +51,8 @@
 # Quickshell-Statusbar: eigene Modul-Anordnung (Override der ML4W-Vorgabe)
 .config/ml4w-statusbar
 
+# Terminal-Begrüßung: drehendes Triforce-GIF neben fastfetch (siehe bashrc/custom/30-autostart)
+.config/zelda-greeter
+
 # Programm gezielt auf der NVIDIA-GPU starten (siehe hypr/custom.lua)
 .local/bin/nvidia-run
