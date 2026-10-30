@@ -12,7 +12,7 @@ import tempfile
 
 ROWS = 16                     # character rows of the image
 DEPTH = 0.35                  # thickness of the triforce (base is 2 wide)
-MIN_WALL = 4                  # thinner wall strips are drawn as face
+MIN_WALL = 3.5                # walls show once they are this many cells wide
 TILT = 0.0                    # >0 looks down on it (near corners then dip)
 LIGHT = (-0.3, 0.3, 0.9)      # light from the front, slightly upper left
 FRAMES = 48
@@ -90,8 +90,8 @@ def cell(sx, sy, theta):
     return None
 
 
-def hide_slivers(row):
-    """Give wall strips narrower than MIN_WALL cells the shade of the face
+def hide_slivers(row, min_run):
+    """Give wall strips narrower than min_run cells the shade of the face
     beside them; thin strips of wall read as specks rather than depth."""
     out = list(row)
     c = 0
@@ -102,7 +102,7 @@ def hide_slivers(row):
         end = c
         while end < len(row) and row[end] and row[end][1]:
             end += 1
-        if end - c < MIN_WALL:
+        if end - c < min_run:
             left = row[c - 1] if c > 0 else None
             right = row[end] if end < len(row) else None
             # no face beside it: a stray sliver floating off the edge, drop it
@@ -113,11 +113,15 @@ def hide_slivers(row):
 
 def grid(theta):
     """Rows of (char, color) cells for one rotation angle."""
+    # decide per frame, not per strip: strips that cross the cutoff one by one
+    # pop in for a single frame and flicker
+    wall_width = DEPTH * abs(math.sin(theta)) * COLS / (2 * SPAN_X)
+    min_run = 2 if wall_width >= MIN_WALL else COLS + 1
     grid_hits = []
     for r in range(ROWS):
         sy = SPAN_Y - 2 * SPAN_Y * (r + 0.5) / ROWS
         grid_hits.append(hide_slivers([cell(-SPAN_X + 2 * SPAN_X * (c + 0.5) / COLS, sy, theta)
-                                       for c in range(COLS)]))
+                                       for c in range(COLS)], min_run))
 
     # a wall cell with no wall above or below is a 1-row speck: use the face beside it
     def is_wall(r, c):
