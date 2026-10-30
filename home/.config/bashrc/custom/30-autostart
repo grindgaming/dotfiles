@@ -30,5 +30,7 @@ if [[ $(tty) == *"pts"* ]]; then
     fi
 fi
 
-# ff shows the Zelda GIF greeter (overrides the alias from 10-aliases)
+# ff, nf and pf show the Zelda GIF greeter (overrides the aliases from 10-aliases)
 alias ff='~/.config/zelda-greeter/greeter.sh'
+alias nf='~/.config/zelda-greeter/greeter.sh'
+alias pf='~/.config/zelda-greeter/greeter.sh'
