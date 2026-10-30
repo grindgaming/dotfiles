@@ -6,22 +6,18 @@
     },
     "modules": {
         "left": [
-            "terminal",
             "workspaces",
-            "updates",
-            "powerprofile"
+            "backlight"
         ],
         "center": [
-            "launcher",
-            "clock",
-            "swaync"
+            "clock"
         ],
         "right": [
             "battery",
-            "backlight",
             "volume",
+            "updates",
+            "powerprofile",
             "systemtray",
-            "logo",
             "power"
         ]
     }
