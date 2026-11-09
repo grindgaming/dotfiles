@@ -42,6 +42,58 @@ ping -c 3 archlinux.org
 
   Bequemer mit Menü: `nmtui`.
 
+### Kein Internet trotz Kabel („Temporärer Fehler bei der Namensauflösung“)
+
+Dann läuft kein Dienst, der per DHCP eine IP-Adresse holt und den DNS-Server einträgt.
+Die Live-ISO erledigt das automatisch, das installierte System nicht. Zuerst prüfen:
+
+```bash
+ip -br addr            # hat das LAN-Interface (z.B. enp3s0) eine 192.168.x.x-Adresse?
+ping -c 2 1.1.1.1      # klappt der Ping auf eine reine IP-Adresse?
+cat /etc/resolv.conf   # steht dort ein nameserver?
+```
+
+- **Keine IP-Adresse:** Es fehlt ein Netzwerkdienst. Eine der beiden Varianten unten einrichten.
+- **IP vorhanden und `1.1.1.1` erreichbar, aber kein DNS:** `/etc/resolv.conf` ist leer oder
+  zeigt ins Leere. Bei Variante B den Symlink setzen; bei Variante A NetworkManager neu starten.
+
+Nur **eine** Variante verwenden, nie beide gleichzeitig.
+
+#### Variante A: NetworkManager (empfohlen, kann auch WLAN)
+
+```bash
+sudo systemctl enable --now NetworkManager
+```
+
+Falls NetworkManager nicht installiert ist (`Unit NetworkManager.service not found`), lässt er sich
+ohne Internet nicht nachinstallieren. Dann vom Arch-USB-Stick booten und dort installieren:
+
+```bash
+mount /dev/ROOT-PARTITION /mnt    # z.B. /dev/nvme0n1p2; bei btrfs zusätzlich: -o subvol=@
+arch-chroot /mnt
+pacman -S networkmanager
+systemctl enable NetworkManager
+exit
+umount -R /mnt
+reboot
+```
+
+#### Variante B: systemd-networkd (schon vorinstalliert, nur LAN)
+
+```bash
+sudo tee /etc/systemd/network/20-wired.network <<'EOF'
+[Match]
+Name=en*
+
+[Network]
+DHCP=yes
+EOF
+sudo systemctl enable --now systemd-networkd systemd-resolved
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+```
+
+Danach erneut `ping -c 3 archlinux.org` ausführen.
+
 ## 4. Git installieren und Repo klonen
 
 ```bash
