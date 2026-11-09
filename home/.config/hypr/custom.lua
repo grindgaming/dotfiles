@@ -36,16 +36,27 @@ end)
 --
 -- Only applied with nvidia-dgpu = off on AMD iGPU + NVIDIA dGPU machines,
 -- so restoring these dotfiles on other hardware leaves the GPU setup untouched.
+--
+-- Skipped when a monitor is connected to the dGPU at login: its outputs (HDMI)
+-- only work if Hyprland opens that card. Plugged in later = log in again.
 
 -- Find the DRM cards by PCI vendor. Detected on every start because
 -- card0/card1 can swap between boots.
-local amd_card, has_nvidia
+local amd_card, has_nvidia, nvidia_monitor
 for n = 0, 9 do
     local vendor = read_file("/sys/class/drm/card" .. n .. "/device/vendor")
     if vendor == "0x1002" and not amd_card then
         amd_card = "/dev/dri/card" .. n
     elseif vendor == "0x10de" then
         has_nvidia = true
+        for _, kind in ipairs({ "HDMI-A", "DP" }) do
+            for i = 1, 4 do
+                local connector = "/sys/class/drm/card" .. n .. "-" .. kind .. "-" .. i
+                if read_file(connector .. "/status") == "connected" then
+                    nvidia_monitor = true
+                end
+            end
+        end
     end
 end
 
@@ -53,7 +64,7 @@ local mesa_egl = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 local radeon_vk = "/usr/share/vulkan/icd.d/radeon_icd.json"
 
 if setting("nvidia-dgpu", "on") == "off" and amd_card and has_nvidia
-    and read_file(mesa_egl) and read_file(radeon_vk) then
+    and not nvidia_monitor and read_file(mesa_egl) and read_file(radeon_vk) then
     -- Only open the AMD card.
     hl.env("AQ_DRM_DEVICES", amd_card)
     -- Hide the NVIDIA EGL/Vulkan drivers from apps by default; otherwise GTK4/
