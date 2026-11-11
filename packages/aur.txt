@@ -1,2 +1,2 @@
 mpvpaper
-yay
+yay-bin

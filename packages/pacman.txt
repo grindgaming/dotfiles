@@ -26,6 +26,7 @@ git
 gnome-text-editor
 gnome-themes-extra
 grim
+grub
 gum
 gvfs
 gvfs-mtp
@@ -47,8 +48,8 @@ linux
 linux-firmware
 linux-headers
 loupe
-make
 matugen
+mesa
 mesa-utils
 mkinitcpio
 nano
