@@ -158,3 +158,7 @@ Es erscheint der **SDDM-Anmeldebildschirm**: anmelden und **Hyprland** wählen.
   passt nicht, hier wird ein Legacy-Treiber aus dem AUR benötigt.
 - **Überschriebene Dateien:** Was beim Wiederherstellen in `$HOME` ersetzt wurde, liegt in
   `~/.dotfiles-backup/<datum>/`. Ersetzte Dateien in `/etc` haben die Endung `.dotfiles-bak`.
+- **Keine Statusleiste oben (auch kein Dock):** Quickshell wurde nicht gestartet. Meist fehlt
+  `~/.mydotfiles`, wohin `hypr/conf/autostart.lua` das Log von `ml4w-autostart` schreibt (legt das
+  Restore seit 2026-11 selbst an). Sofort beheben ohne Neuanmeldung:
+  `mkdir -p ~/.mydotfiles && hyprctl dispatch 'hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-autostart > ~/.mydotfiles/ml4w-autostart.log 2>&1")'`

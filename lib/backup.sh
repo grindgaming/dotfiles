@@ -1,9 +1,36 @@
 # dotfiles backup – aktuellen Systemzustand ins Repo schreiben, committen und pushen
 
+# Icon- und GTK-Theme aus gtk-3.0/settings.ini gehören zum Aussehen, sind aber oft nur als
+# Abhängigkeit installiert und fehlen dann in -Qqe. Das besitzende Paket wird deshalb immer
+# in die passende Liste aufgenommen (sonst z.B. Nautilus ohne Icons auf dem neuen Rechner).
+backup_theme_packages() {
+    local ini=$HOME/.config/gtk-3.0/settings.ini key sub name dir pkg list
+    [[ -f $ini ]] || return 0
+    for key in gtk-icon-theme-name:icons gtk-theme-name:themes; do
+        sub=${key#*:} key=${key%:*}
+        name=$(sed -n "s/^$key\s*=\s*//p" "$ini")
+        # Adwaita ist in GTK eingebaut bzw. kommt mit GTK selbst
+        [[ -n $name && $name != Adwaita ]] || continue
+        dir=/usr/share/$sub/$name
+        if [[ ! -d $dir ]]; then
+            warn "Theme '$name' ($key) ist nicht installiert – auf dem neuen Rechner fehlt es."
+            continue
+        fi
+        pkg=$(pacman -Qqo "$dir" 2>/dev/null | head -n1)
+        [[ -n $pkg ]] || continue
+        if pacman -Qqm "$pkg" >/dev/null 2>&1; then list=aur.txt; else list=pacman.txt; fi
+        if ! grep -qxF "$pkg" "$REPO/packages/$list"; then
+            echo "$pkg" >> "$REPO/packages/$list"
+            sort -u -o "$REPO/packages/$list" "$REPO/packages/$list"
+        fi
+    done
+}
+
 backup_packages() {
     msg "Paketlisten"
     pacman -Qqen | filter_hw | sort -u > "$REPO/packages/pacman.txt"
     pacman -Qqem | grep -v -- '-debug$' | filter_hw | sort -u > "$REPO/packages/aur.txt"
+    backup_theme_packages
     info "$(wc -l < "$REPO/packages/pacman.txt") offizielle, $(wc -l < "$REPO/packages/aur.txt") AUR-Pakete"
 
     if command -v flatpak >/dev/null; then

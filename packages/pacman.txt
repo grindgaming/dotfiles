@@ -62,6 +62,7 @@ noto-fonts-emoji
 nvtop
 nwg-displays
 nwg-look
+obsidian
 otf-font-awesome
 pacman-contrib
 pavucontrol
@@ -76,6 +77,7 @@ qt6-virtualkeyboard
 qt6-wayland
 qt6ct
 quickshell
+reflector
 remmina
 rofi
 rsync
@@ -85,6 +87,7 @@ slurp
 smartmontools
 sudo
 swaync
+syncthing
 tesseract
 tesseract-data-eng
 tmux

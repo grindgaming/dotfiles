@@ -1,2 +1,3 @@
+kora-icon-theme
 mpvpaper
 yay-bin

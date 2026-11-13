@@ -185,6 +185,11 @@ restore_etc() {
 # Dateien, die ML4W pro Rechner erzeugt und die daher nicht im Repo liegen
 restore_machine_files() {
     msg "Rechnerspezifische Hyprland-Dateien"
+    # hypr/conf/autostart.lua schreibt das Log von ml4w-autostart nach ~/.mydotfiles.
+    # Ohne den Ordner scheitert die Umleitung, ml4w-autostart läuft nie und
+    # Quickshell (Statusleiste, Dock, Wallpaper-Theming) startet nicht.
+    # Der ML4W-Installer legt ihn an, unser Restore kopiert die Configs aber direkt.
+    mkdir -p "$HOME/.mydotfiles"
     local conf=$HOME/.config/hypr/conf
     [[ -d $conf ]] || return 0
     if [[ ! -f $conf/monitor.lua ]]; then

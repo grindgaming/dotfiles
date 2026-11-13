@@ -94,10 +94,8 @@ hl.bind("CTRL + ALT + T", hl.dsp.exec_cmd("~/.config/ml4w/themes/themes.sh"), { 
 
 -- Special workspace (scratchpad)
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("scratchpad"), { description = "Toggle special workspace scratchpad" })
-hl.bind(mainMod .. " + SHIFT + S", function()
-    hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
-    hl.dispatch(hl.dsp.window.move({ workspace = "special:scratchpad" }))
-end)
+-- Previously: float active window + send it to the scratchpad (removed for now)
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("~/.config/hypr/scripts/snip.sh"), { description = "Snip a region to the clipboard" })
 
 -- Scroll through existing workspaces with mainMod + scroll    
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Switch to next workspace" })
