@@ -61,6 +61,7 @@ noto-fonts-emoji
 nvtop
 nwg-displays
 nwg-look
+obsidian
 otf-font-awesome
 pacman-contrib
 pavucontrol
@@ -84,6 +85,7 @@ slurp
 smartmontools
 sudo
 swaync
+syncthing
 tesseract
 tesseract-data-eng
 tmux
