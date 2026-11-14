@@ -88,6 +88,7 @@ smartmontools
 sudo
 swaync
 syncthing
+tailscale
 tesseract
 tesseract-data-eng
 tmux
