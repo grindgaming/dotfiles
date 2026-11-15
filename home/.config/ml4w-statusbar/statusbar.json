@@ -15,6 +15,7 @@
         "right": [
             "battery",
             "volume",
+            "wifi",
             "updates",
             "powerprofile",
             "systemtray",

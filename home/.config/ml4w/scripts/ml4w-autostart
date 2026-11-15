@@ -30,7 +30,7 @@ if [ ! -f $CACHE_FILE ]; then
 fi
 
 # Start nmapplet
-nm-applet --indicator &
+# nm-applet --indicator &   # replaced by Quickshell WifiModule
 
 # Quickshell reads its icon theme from QS_ICON_THEME, not from GTK. Hyprland
 # normally exports it (conf/environment.lua); fall back to reading the GTK
