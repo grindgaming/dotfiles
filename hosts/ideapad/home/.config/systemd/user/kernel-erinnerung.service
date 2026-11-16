@@ -1,0 +1,6 @@
+[Unit]
+Description=Erinnerung: neuer Kernel (Helligkeits-Regression 7.3.4) prüfen
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/kernel-erinnerung

@@ -48,6 +48,7 @@ linux
 linux-firmware
 linux-headers
 loupe
+make
 matugen
 mesa
 mesa-utils

@@ -293,6 +293,15 @@ PanelWindow {
         }
     }
     Component { id: cPowerProfile; PowerProfileModule {} }
+    // True while the Wi-Fi panel is open; keeps the pill expanded (like the tray).
+    property bool wifiMenuOpen: false
+    Component {
+        id: cWifi
+        WifiModule {
+            ipcEnabled: root.primary
+            Binding { target: root; property: "wifiMenuOpen"; value: menuOpen }
+        }
+    }
 
     readonly property var moduleComponents: ({
         "terminal":   cTerminal,
@@ -307,7 +316,8 @@ PanelWindow {
         "volume":       cVolume,
         "backlight": cBacklight,
         "battery":      cBattery,
-        "powerprofile": cPowerProfile
+        "powerprofile": cPowerProfile,
+        "wifi":         cWifi
     })
 
     // --- KEYBOARD NAVIGATION ---
@@ -467,7 +477,7 @@ PanelWindow {
 
         // Collapsed = sized to content, Expanded = fixed width.
         property bool expanded: hoverHandler.hovered || root.barExpanded
-            || root.alwaysExpanded || root.trayMenuOpen
+            || root.alwaysExpanded || root.trayMenuOpen || root.wifiMenuOpen
         // 0 in the settings file means "hug the center content".
         property real collapsedWidth: root.settings.pill.collapsedWidth > 0
             ? root.settings.pill.collapsedWidth
