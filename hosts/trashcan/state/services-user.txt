@@ -1,0 +1,10 @@
+dotfiles-backup.timer
+odysseus.service
+p11-kit-server.socket
+pipewire-pulse.service
+pipewire-pulse.socket
+pipewire.service
+pipewire.socket
+syncthing.service
+wireplumber.service
+xdg-user-dirs.service

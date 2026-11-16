@@ -73,6 +73,7 @@ polkit-kde-agent
 power-profiles-daemon
 python-pip
 python-pipx
+qalculate-gtk
 qt5-wayland
 qt6-virtualkeyboard
 qt6-wayland

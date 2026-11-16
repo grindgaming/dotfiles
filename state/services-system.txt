@@ -4,6 +4,10 @@ NetworkManager.service
 bluetooth.service
 docker.service
 getty@.service
+nvidia-hibernate.service
+nvidia-resume.service
+nvidia-suspend.service
+ollama.service
 sddm.service
 systemd-network-generator.service
 systemd-networkd-resolve-hook.socket

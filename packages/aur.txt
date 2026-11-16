@@ -1,3 +1,4 @@
 kora-icon-theme
 mpvpaper
+yay
 yay-bin
