@@ -104,6 +104,10 @@ restore_home() {
     # Überschriebene Dateien landen in $backup_dir
     # --keep-dirlinks: vorhandene ML4W-Links nach ~/.mydotfiles bleiben erhalten
     rsync -a --keep-dirlinks --backup --backup-dir="$backup_dir" "$REPO/home/" "$HOME/"
+    # Hardware-Dateien dieses Rechners, falls er schon einmal gesichert wurde
+    if [[ -d $(host_dir)/home ]]; then
+        rsync -a --keep-dirlinks --backup --backup-dir="$backup_dir" "$(host_dir)/home/" "$HOME/"
+    fi
     if [[ -d $backup_dir ]]; then
         info "Vorherige Versionen gesichert in $backup_dir"
     fi

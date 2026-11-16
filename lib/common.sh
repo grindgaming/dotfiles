@@ -40,3 +40,20 @@ require_user() {
 }
 
 hostname_short() { uname -n; }
+
+# Rechnerspezifischer Teil des Repos (Hardware-Dateien, Paket- und Dienstlisten)
+host_dir() { echo "$REPO/hosts/$(hostname_short)"; }
+
+# host_excludes – rsync-Ausschlussdatei mit den Pfaden aus config/host.txt (mit führendem "/")
+host_excludes() {
+    local f
+    f=$(mktemp)
+    read_list "$REPO/config/host.txt" | sed 's|^|/|' > "$f"
+    echo "$f"
+}
+
+# union_lists ziel datei... – Vereinigung mehrerer Listen (für Neuinstallationen)
+union_lists() {
+    local target=$1; shift
+    cat "$@" 2>/dev/null | sed '/^$/d' | sort -u > "$target"
+}

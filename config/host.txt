@@ -1,0 +1,11 @@
+# Pfade relativ zu $HOME, die pro Rechner verschieden sind (Hardware).
+# Sie liegen nicht unter home/, sondern unter hosts/<rechnername>/home/
+# und werden von "dotfiles sync" nie auf andere Rechner übertragen.
+
+# Monitore (Anschlüsse, Anordnung)
+.config/hypr/monitors.lua
+# NVIDIA-dGPU an/aus (Laptop mit Hybrid-Grafik vs. Desktop)
+.config/ml4w/settings/nvidia-dgpu
+# Erinnerung an den gesperrten Kernel (nur ideapad)
+.config/systemd/user/kernel-erinnerung.service
+.config/systemd/user/kernel-erinnerung.timer

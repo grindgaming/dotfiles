@@ -1,7 +1,7 @@
 [Unit]
-Description=dotfiles: Systemzustand nach GitHub sichern
+Description=dotfiles: Rechner über GitHub abgleichen
 After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/bin/dotfiles backup
+ExecStart=%h/.local/bin/dotfiles sync

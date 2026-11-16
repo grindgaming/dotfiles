@@ -19,42 +19,67 @@ backup_theme_packages() {
         pkg=$(pacman -Qqo "$dir" 2>/dev/null | head -n1)
         [[ -n $pkg ]] || continue
         if pacman -Qqm "$pkg" >/dev/null 2>&1; then list=aur.txt; else list=pacman.txt; fi
-        if ! grep -qxF "$pkg" "$REPO/packages/$list"; then
-            echo "$pkg" >> "$REPO/packages/$list"
-            sort -u -o "$REPO/packages/$list" "$REPO/packages/$list"
+        if ! grep -qxF "$pkg" "$1/$list"; then
+            echo "$pkg" >> "$1/$list"
+            sort -u -o "$1/$list" "$1/$list"
         fi
     done
 }
 
+# Paketlisten je Rechner in hosts/<rechner>/packages/, packages/*.txt = Vereinigung aller
+# Rechner (für Neuinstallationen). So entfernt kein Rechner die Pakete des anderen.
 backup_packages() {
     msg "Paketlisten"
-    pacman -Qqen | filter_hw | sort -u > "$REPO/packages/pacman.txt"
-    pacman -Qqem | grep -v -- '-debug$' | filter_hw | sort -u > "$REPO/packages/aur.txt"
-    backup_theme_packages
-    info "$(wc -l < "$REPO/packages/pacman.txt") offizielle, $(wc -l < "$REPO/packages/aur.txt") AUR-Pakete"
+    local dir f
+    dir=$(host_dir)/packages
+    mkdir -p "$dir"
+    pacman -Qqen | filter_hw | sort -u > "$dir/pacman.txt"
+    pacman -Qqem | grep -v -- '-debug$' | filter_hw | sort -u > "$dir/aur.txt"
+    backup_theme_packages "$dir"
+    info "$(wc -l < "$dir/pacman.txt") offizielle, $(wc -l < "$dir/aur.txt") AUR-Pakete"
 
     if command -v flatpak >/dev/null; then
-        flatpak list --app --columns=application 2>/dev/null | sort -u > "$REPO/packages/flatpak.txt"
-        info "$(wc -l < "$REPO/packages/flatpak.txt") Flatpaks"
+        flatpak list --app --columns=application 2>/dev/null | sort -u > "$dir/flatpak.txt"
+        info "$(wc -l < "$dir/flatpak.txt") Flatpaks"
     fi
+    for f in pacman.txt aur.txt flatpak.txt; do
+        union_lists "$REPO/packages/$f" "$REPO"/hosts/*/packages/$f
+    done
+}
+
+# Hardware-Dateien (config/host.txt) nach hosts/<rechner>/home/
+backup_host_files() {
+    local dir path
+    dir=$(host_dir)/home
+    while IFS= read -r path; do
+        if [[ -e $HOME/$path ]]; then
+            mkdir -p "$dir/$(dirname "$path")"
+            cp -L "$HOME/$path" "$dir/$path"
+        else
+            rm -f "$dir/$path"
+        fi
+    done < <(read_list "$REPO/config/host.txt")
 }
 
 backup_home() {
     msg "Konfigurationen aus \$HOME"
-    local path missing=()
+    local path missing=() hostex
+    hostex=$(host_excludes)
     mkdir -p "$REPO/home"
     while IFS= read -r path; do
         if [[ -e $HOME/$path ]]; then
             # --relative behält den Pfad bei, --delete hält das Repo synchron
             # --copy-links: ML4W verlinkt viele Configs nach ~/.mydotfiles, gesichert wird der Inhalt
             rsync -a --copy-links --relative --delete --delete-excluded \
-                --exclude-from="$REPO/config/exclude.txt" \
+                --exclude-from="$REPO/config/exclude.txt" --exclude-from="$hostex" \
                 "$HOME/./$path" "$REPO/home/"
         else
             missing+=("$path")
         fi
     done < <(read_list "$REPO/config/home.txt")
+    rm -f "$hostex"
     (( ${#missing[@]} == 0 )) || info "Nicht vorhanden (übersprungen): ${missing[*]}"
+    backup_host_files
 }
 
 backup_etc() {
@@ -90,11 +115,18 @@ backup_wallpaper() {
 
 backup_state() {
     msg "Dienste, Gruppen, Shell, Zeitzone"
+    # Dienste und Gruppen je Rechner, state/*.txt = Vereinigung (für Neuinstallationen)
+    local dir f
+    dir=$(host_dir)/state
+    mkdir -p "$dir"
     systemctl list-unit-files --state=enabled --type=service,socket,timer --no-legend 2>/dev/null \
-        | awk '{print $1}' | sort -u > "$REPO/state/services-system.txt"
+        | awk '{print $1}' | sort -u > "$dir/services-system.txt"
     systemctl --user list-unit-files --state=enabled --type=service,socket,timer --no-legend 2>/dev/null \
-        | awk '{print $1}' | sort -u > "$REPO/state/services-user.txt" || true
-    id -nG | tr ' ' '\n' | grep -vx "$(id -gn)" | sort -u > "$REPO/state/groups.txt"
+        | awk '{print $1}' | sort -u > "$dir/services-user.txt" || true
+    id -nG | tr ' ' '\n' | grep -vx "$(id -gn)" | sort -u > "$dir/groups.txt"
+    for f in services-system.txt services-user.txt groups.txt; do
+        union_lists "$REPO/state/$f" "$REPO"/hosts/*/state/$f
+    done
     getent passwd "$USER" | cut -d: -f7 > "$REPO/state/shell.txt"
     readlink /etc/localtime | sed 's|.*/zoneinfo/||' > "$REPO/state/timezone.txt"
     backup_wallpaper

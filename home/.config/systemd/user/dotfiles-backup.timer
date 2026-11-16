@@ -1,10 +1,10 @@
 [Unit]
-Description=dotfiles: tägliches Backup
+Description=dotfiles: stündlicher Abgleich
 
 [Timer]
-OnCalendar=daily
+OnCalendar=hourly
 Persistent=true
-RandomizedDelaySec=15min
+RandomizedDelaySec=5min
 
 [Install]
 WantedBy=timers.target

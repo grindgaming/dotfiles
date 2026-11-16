@@ -19,6 +19,7 @@ source "$REPO/lib/common.sh"
 source "$REPO/lib/hardware.sh"
 source "$REPO/lib/backup.sh"
 source "$REPO/lib/restore.sh"
+source "$REPO/lib/sync.sh"
 
 usage() {
     cat <<EOF
@@ -32,9 +33,11 @@ Befehle:
       -y, --yes         keine Rückfragen (NVIDIA, Modus, mainMod wie im Backup)
       --mainmod alt|super
       --skip-packages   nur Configs, /etc und Dienste
+  sync                Rechner abgleichen: sichern, holen, anwenden, pushen (Zweig main)
+      --uebernehmen     erstes Einrichten: Repo-Stand ohne eigenes Backup übernehmen
   status              Unterschiede zwischen System und letztem Backup anzeigen
   hardware            erkannte Hardware und passende Treiber-Pakete anzeigen
-  autobackup on|off   tägliches automatisches Backup (systemd-Timer)
+  autobackup on|off   stündlicher automatischer Sync (systemd-Timer)
 EOF
 }
 
@@ -64,28 +67,28 @@ cmd_autobackup() {
             mkdir -p "$unit_dir"
             cat > "$unit_dir/dotfiles-backup.service" <<'EOF'
 [Unit]
-Description=dotfiles: Systemzustand nach GitHub sichern
+Description=dotfiles: Rechner über GitHub abgleichen
 After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/bin/dotfiles backup
+ExecStart=%h/.local/bin/dotfiles sync
 EOF
             cat > "$unit_dir/dotfiles-backup.timer" <<'EOF'
 [Unit]
-Description=dotfiles: tägliches Backup
+Description=dotfiles: stündlicher Abgleich
 
 [Timer]
-OnCalendar=daily
+OnCalendar=hourly
 Persistent=true
-RandomizedDelaySec=15min
+RandomizedDelaySec=5min
 
 [Install]
 WantedBy=timers.target
 EOF
             systemctl --user daemon-reload
             systemctl --user enable --now dotfiles-backup.timer
-            msg "Automatisches Backup aktiv (täglich). Logs: journalctl --user -u dotfiles-backup"
+            msg "Automatischer Sync aktiv (stündlich). Logs: journalctl --user -u dotfiles-backup"
             ;;
         off)
             systemctl --user disable --now dotfiles-backup.timer 2>/dev/null || true
@@ -102,6 +105,7 @@ shift || true
 case $command in
     backup)     cmd_backup "$@" ;;
     restore)    cmd_restore "$@" ;;
+    sync)       cmd_sync "$@" ;;
     status)     cmd_status ;;
     hardware)   cmd_hardware ;;
     autobackup) cmd_autobackup "$@" ;;
