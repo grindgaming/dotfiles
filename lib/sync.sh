@@ -22,25 +22,21 @@ sync_hypr_env() {
 
 # Gemeinsame Configs + Hardware-Dateien dieses Rechners nach $HOME
 sync_apply_home() {
-    local path backup_dir hostex
+    local path backup_dir hostex dry=${1:-} srcs=()
     backup_dir="$HOME/.dotfiles-backup/sync-$(date +%Y%m%d-%H%M%S)"
     hostex=$(host_excludes)
     while IFS= read -r path; do
-        [[ -e $REPO/home/$path ]] || continue
-        if [[ -d $REPO/home/$path ]]; then
-            mkdir -p "$HOME/$path"
-            # --delete: auf dem anderen Rechner gelöschte Dateien verschwinden auch hier.
-            # Ausgeschlossenes (exclude.txt, host.txt) wird nie gelöscht.
-            rsync -a --keep-dirlinks --delete --backup --backup-dir="$backup_dir/$path" \
-                --exclude-from="$REPO/config/exclude.txt" --exclude-from="$hostex" \
-                "$REPO/home/$path/" "$HOME/$path/"
-        else
-            mkdir -p "$(dirname "$HOME/$path")"
-            rsync -a --backup --backup-dir="$backup_dir/$(dirname "$path")" \
-                "$REPO/home/$path" "$HOME/$path"
-        fi
+        [[ -e $REPO/home/$path ]] && srcs+=("$REPO/home/./$path")
     done < <(read_list "$REPO/config/home.txt")
+    # --relative wie beim Backup, damit Muster mit "/" (exclude.txt, host.txt) relativ zu
+    # $HOME greifen. --delete: anderswo gelöschte Dateien verschwinden auch hier;
+    # Ausgeschlossenes wird nie gelöscht.
+    (( ${#srcs[@]} )) && rsync -a $dry --relative --keep-dirlinks --delete \
+        --backup --backup-dir="$backup_dir" \
+        --exclude-from="$REPO/config/exclude.txt" --exclude-from="$hostex" \
+        "${srcs[@]}" "$HOME/"
     rm -f "$hostex"
+    [[ -n $dry ]] && return 0
     if [[ -d $(host_dir)/home ]]; then
         rsync -a --keep-dirlinks --backup --backup-dir="$backup_dir" "$(host_dir)/home/" "$HOME/"
     fi
