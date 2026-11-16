@@ -96,7 +96,7 @@ cmd_sync() {
     if (( take )); then
         # Erstes Einrichten: Stand vom Repo übernehmen, ohne vorher die eigene Abweichung zu sichern
         msg "Gemeinsamen Stand übernehmen"
-        git -C "$REPO" pull -q --rebase origin main || die "git pull fehlgeschlagen."
+        git -C "$REPO" pull -q --rebase=merges origin main || die "git pull fehlgeschlagen."
         sync_apply_home
         sync_reload ".config/hypr/ .config/quickshell/ .config/systemd/user/"
     else
@@ -104,7 +104,7 @@ cmd_sync() {
 
         msg "Änderungen der anderen Rechner holen"
         before=$(git -C "$REPO" rev-parse HEAD)
-        if ! git -C "$REPO" pull -q --rebase origin main; then
+        if ! git -C "$REPO" pull -q --rebase=merges origin main; then
             git -C "$REPO" rebase --abort 2>/dev/null || true
             sync_notify critical "dotfiles sync: Konflikt" \
                 "Beide Rechner haben dieselbe Datei geändert. Nichts angewendet, bitte von Hand lösen."
