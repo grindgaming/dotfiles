@@ -65,8 +65,9 @@ sync_reload() {
 # Pakete aus der gemeinsamen Liste, die hier fehlen, nur melden
 sync_missing_packages() {
     local missing
-    missing=$(comm -13 <(pacman -Qq | sort -u) \
-        <(cat "$REPO/packages/pacman.txt" "$REPO/packages/aur.txt" 2>/dev/null | filter_hw | sort -u))
+    # pacman -T berücksichtigt "provides" (z.B. yay-bin erfüllt yay)
+    missing=$(cat "$REPO/packages/pacman.txt" "$REPO/packages/aur.txt" 2>/dev/null \
+        | filter_hw | sort -u | xargs -r pacman -T || true)
     [[ -n $missing ]] || return 0
     warn "Auf diesem Rechner fehlen Pakete der anderen Rechner:"
     sed 's/^/    /' <<<"$missing"
