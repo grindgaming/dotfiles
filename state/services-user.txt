@@ -1,4 +1,5 @@
 dotfiles-backup.timer
+kernel-erinnerung.timer
 odysseus.service
 p11-kit-server.socket
 pipewire-pulse.service
