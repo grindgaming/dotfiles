@@ -9,3 +9,5 @@
 # Erinnerung an den gesperrten Kernel (nur ideapad)
 .config/systemd/user/kernel-erinnerung.service
 .config/systemd/user/kernel-erinnerung.timer
+# Bildschirmsperre/Standby (trashcan: kein Auto-Suspend, GPU-Reset beim Aufwachen lässt Hyprland abstürzen)
+.config/hypr/hypridle.conf
