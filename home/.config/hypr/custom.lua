@@ -91,3 +91,10 @@ if setting("hardware-mode", "beauty") == "performance" then
         },
     })
 end
+
+-- Firefox: no blur while it is the focused window.
+hl.window_rule({
+    name = "firefox-no-blur-focused",
+    match = { class = "firefox", focus = true },
+    no_blur = true,
+})
