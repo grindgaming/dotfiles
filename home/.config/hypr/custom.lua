@@ -101,9 +101,9 @@ hl.window_rule({
 })
 
 -- Inactive windows: keep the transparency, but no blur behind them.
--- Nautilus (file manager) and Firefox keep their blur.
+-- Nautilus (file manager) stays as it is.
 hl.window_rule({
     name = "inactive-no-blur",
-    match = { focus = false, class = "negative:(org\\.gnome\\.Nautilus|firefox)" },
+    match = { focus = false, class = "negative:org\\.gnome\\.Nautilus" },
     no_blur = true,
 })
