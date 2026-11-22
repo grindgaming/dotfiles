@@ -91,6 +91,7 @@ steam
 sudo
 swaync
 syncthing
+systemd-resolvconf
 tailscale
 tesseract
 tesseract-data-eng
@@ -107,6 +108,7 @@ vlc
 waybar
 wev
 wget
+wireguard-tools
 wireplumber
 woff2-font-awesome
 wofi
