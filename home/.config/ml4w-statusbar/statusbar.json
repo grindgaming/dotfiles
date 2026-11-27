@@ -1,25 +1,26 @@
 {
-    "bar": {
-        "enabled": true,
-        "alwaysExpanded": true,
-        "reservedHeight": 68
-    },
-    "modules": {
-        "left": [
-            "workspaces",
-            "backlight"
-        ],
-        "center": [
-            "clock"
-        ],
-        "right": [
-            "battery",
-            "volume",
-            "wifi",
-            "updates",
-            "powerprofile",
-            "systemtray",
-            "power"
-        ]
-    }
+  "bar": {
+    "enabled": true,
+    "alwaysExpanded": true,
+    "reservedHeight": 68
+  },
+  "modules": {
+    "left": [
+      "workspaces",
+      "backlight"
+    ],
+    "center": [
+      "clock"
+    ],
+    "right": [
+      "battery",
+      "volume",
+      "wifi",
+      "vpn",
+      "updates",
+      "powerprofile",
+      "systemtray",
+      "power"
+    ]
+  }
 }

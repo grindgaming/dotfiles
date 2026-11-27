@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# CyberGhost VPN an/aus für die Statusleiste (Quickshell-Modul "vpn").
+#   cg-vpn status   → eine Zeile JSON für die Leiste
+#   cg-vpn on|off|toggle
+# Bester Server = Stadt mit der niedrigsten Last im Land, dort der Server mit der
+# niedrigsten Last. Root-Teil: /usr/local/bin/cg-vpn-root (sudoers, ohne Passwort).
+# Einstellungen per Umgebung: CG_COUNTRY (Standard DE), CG_PROTO (wireguard|openvpn).
+set -uo pipefail
+
+CG=/usr/bin/cyberghostvpn
+ROOT=/usr/local/bin/cg-vpn-root
+COUNTRY="${CG_COUNTRY:-DE}"
+PROTO="${CG_PROTO:-wireguard}"
+RUN="${XDG_RUNTIME_DIR:-/tmp}"
+STATE="$RUN/cg-vpn.state"   # "server|stadt|protokoll" der aktuellen Verbindung
+BUSY="$RUN/cg-vpn.busy"     # existiert, solange verbunden/getrennt wird
+LOG="$RUN/cg-vpn.log"
+
+json_str() { local s=${1//\\/\\\\}; s=${s//\"/\\\"}; printf '"%s"' "${s//$'\n'/\\n}"; }
+
+connected() { "$CG" --status 2>/dev/null | grep -q 'VPN connection found'; }
+
+notify() { command -v notify-send >/dev/null && notify-send -a "CyberGhost" -i network-vpn "$1" "${2:-}"; }
+
+# Tabelle der CLI → "name<TAB>last" je Zeile
+table() { "$CG" --traffic --"$PROTO" --country-code "$COUNTRY" "$@" 2>/dev/null |
+  awk -F'|' 'NF>=5 && $2 ~ /[0-9]/ { gsub(/^ +| +$/,"",$3); gsub(/^ +| +$/,"",$4); gsub(/[ %]/,"",$5); print $3 "\t" $4 "\t" $5 }'; }
+
+best_server() {
+  local city server
+  city=$(table | sort -t$'\t' -k3,3n | head -1 | cut -f1)
+  [[ -n "$city" ]] || return 1
+  server=$(table --city "$city" | sort -t$'\t' -k3,3n | head -1 | cut -f2)
+  [[ -n "$server" ]] || return 1
+  printf '%s|%s\n' "$server" "$city"
+}
+
+status() {
+  local text tip cls server="" city="" proto=""
+  [[ -f "$STATE" ]] && IFS='|' read -r server city proto <"$STATE"
+  if [[ -f "$BUSY" ]]; then
+    cls=busy; tip="$(cat "$BUSY")"
+  elif connected; then
+    cls=on
+    if [[ -n "$server" ]]; then tip="Verbunden: $city ($server, $proto)"; else tip="Verbunden (außerhalb des Knopfs gestartet)"; fi
+  else
+    cls=off; tip="Nicht verbunden"
+  fi
+  [[ -x "$ROOT" ]] || tip="$tip"$'\n'"Einrichtung fehlt: _machine/setup/cyberghost-knopf-trashcan.sh"
+  printf '{"class":"%s","tooltip":%s,"country":"%s"}\n' "$cls" "$(json_str "$tip")" "$COUNTRY"
+}
+
+on() {
+  local pick server city out
+  echo "Suche besten Server ($COUNTRY) …" >"$BUSY"
+  if ! pick=$(best_server); then
+    rm -f "$BUSY"; notify "VPN: kein Server gefunden" "Serverliste für $COUNTRY leer (Internet/Login?)"; return 1
+  fi
+  IFS='|' read -r server city <<<"$pick"
+  echo "Verbinde mit $city ($server) …" >"$BUSY"
+  if out=$(sudo -n "$ROOT" connect "$PROTO" "$COUNTRY" "$city" "$server" 2>&1) && connected; then
+    printf '%s|%s|%s\n' "$server" "$city" "$PROTO" >"$STATE"
+    rm -f "$BUSY"; notify "VPN verbunden" "$city · $server"
+  else
+    printf '%s\n%s\n' "$(date '+%F %T') connect $server" "$out" >>"$LOG"
+    rm -f "$BUSY"; notify "VPN: Verbinden fehlgeschlagen" "$(tail -3 <<<"$out")"; return 1
+  fi
+}
+
+off() {
+  local out
+  echo "Trenne …" >"$BUSY"
+  out=$(sudo -n "$ROOT" stop 2>&1)
+  rm -f "$BUSY"
+  if connected; then
+    printf '%s\n%s\n' "$(date '+%F %T') stop" "$out" >>"$LOG"
+    notify "VPN: Trennen fehlgeschlagen" "$(tail -3 <<<"$out")"; return 1
+  fi
+  rm -f "$STATE"; notify "VPN getrennt"
+}
+
+case "${1:-status}" in
+  status) status ;;
+  on)     [[ -f "$BUSY" ]] || on ;;
+  off)    [[ -f "$BUSY" ]] || off ;;
+  toggle) [[ -f "$BUSY" ]] && exit 0; if connected; then off; else on; fi ;;
+  best)   best_server ;;
+  *) echo "Aufruf: cg-vpn status|on|off|toggle|best" >&2; exit 2 ;;
+esac

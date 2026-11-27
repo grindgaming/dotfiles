@@ -293,6 +293,11 @@ PanelWindow {
         }
     }
     Component { id: cPowerProfile; PowerProfileModule {} }
+    // Eigenes Modul: CyberGhost-VPN-Knopf (VpnModule.qml)
+    Component {
+        id: cVpn
+        VpnModule { onCollapsedChanged: Qt.callLater(root.rebuildNavItems) }
+    }
     // True while the Wi-Fi panel is open; keeps the pill expanded (like the tray).
     property bool wifiMenuOpen: false
     Component {
@@ -317,6 +322,7 @@ PanelWindow {
         "backlight": cBacklight,
         "battery":      cBattery,
         "powerprofile": cPowerProfile,
+        "vpn":          cVpn,
         "wifi":         cWifi
     })
 

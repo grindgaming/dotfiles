@@ -56,3 +56,6 @@
 
 # Programm gezielt auf der NVIDIA-GPU starten (siehe hypr/custom.lua)
 .local/bin/nvidia-run
+
+# CyberGhost-VPN-Knopf der Statusleiste (Quickshell-Modul StatusbarApp/VpnModule.qml)
+.local/bin/cg-vpn
