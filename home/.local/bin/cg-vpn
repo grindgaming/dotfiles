@@ -18,7 +18,8 @@ LOG="$RUN/cg-vpn.log"
 
 json_str() { local s=${1//\\/\\\\}; s=${s//\"/\\\"}; printf '"%s"' "${s//$'\n'/\\n}"; }
 
-connected() { "$CG" --status 2>/dev/null | grep -q 'VPN connection found'; }
+# WireGuard legt das Interface "cyberghost" an (--status erkennt nur OpenVPN)
+connected() { [[ -e /sys/class/net/cyberghost ]] || "$CG" --status 2>/dev/null | grep -q "VPN connection found"; }
 
 notify() { command -v notify-send >/dev/null && notify-send -a "CyberGhost" -i network-vpn "$1" "${2:-}"; }
 
