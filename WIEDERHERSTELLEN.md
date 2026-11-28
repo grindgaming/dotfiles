@@ -91,6 +91,21 @@ nmcli device wifi connect "DEIN_WLAN_NAME" --ask
 ```
 
 Wenn `pacman -Syu` einen neuen Kernel installiert hat, lädt `wl` erst nach einem Neustart.
+
+Welcher Kernel läuft, zeigt `uname -r`: endet er auf `-lts`, ist es `linux-lts`, sonst (z.B.
+`7.3.6-arch1-1`) der normale `linux`. Die Header müssen zum **laufenden** Kernel passen.
+
+**`modprobe: FATAL: Module wl not found`:** Der Treiber wurde nicht für den laufenden Kernel
+gebaut, meist weil `broadcom-wl-dkms` mit den falschen Headern installiert wurde. Lösung:
+
+```bash
+sudo pacman -S linux-headers     # Header zum normalen Kernel; DKMS baut wl dabei automatisch
+dkms status                      # muss "broadcom-wl, ..., <uname -r>, x86_64: installed" zeigen
+sudo modprobe wl
+```
+
+Alternativ ohne DKMS: `sudo pacman -R broadcom-wl-dkms` und `sudo pacman -S broadcom-wl`
+(fertig gebaut für den normalen Kernel), dann neu starten.
 Danach kann das USB-Kabel ab.
 
 **USB-Stick mit Treiber (optional):** Mit `archiso` lässt sich eine eigene Arch-ISO bauen, die
