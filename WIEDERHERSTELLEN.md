@@ -42,6 +42,70 @@ ping -c 3 archlinux.org
 
   Bequemer mit Menü: `nmtui`.
 
+### WLAN mit `iwctl` (Live-ISO, z.B. vor `archinstall`)
+
+Am einfachsten, wenn kein Kabel da ist. `iwctl` gehört zu `iwd` und ist auf dem Arch-USB-Stick
+immer dabei; auf dem installierten System nur, wenn `iwd` mitinstalliert wurde.
+
+```bash
+rfkill unblock all                 # falls WLAN gesperrt ist
+iwctl device list                  # Name des WLAN-Geräts, meist wlan0
+iwctl station wlan0 scan
+iwctl station wlan0 get-networks   # verfügbare WLANs
+iwctl station wlan0 connect "DEIN_WLAN_NAME"   # fragt nach dem Passwort
+ping -c 3 archlinux.org
+```
+
+Interaktiv geht es auch: `iwctl` starten, dieselben Befehle ohne `iwctl` davor, `exit` zum Beenden.
+
+- **`device list` ist leer:** Es fehlt der WLAN-Treiber, siehe nächster Abschnitt.
+- Auf dem installierten System nicht `iwd` und NetworkManager gleichzeitig laufen lassen;
+  dort WLAN wie oben mit `nmcli`/`nmtui` einrichten.
+
+### Ältere MacBooks (z.B. MacBook Air 2014): WLAN geht erst mit Treiber
+
+Diese MacBooks haben einen Broadcom-WLAN-Chip. Der nötige Treiber `broadcom-wl` ist **weder auf
+dem Arch-USB-Stick noch im frisch installierten System**. Das WLAN funktioniert also zunächst
+**auf keinen Fall**, man braucht für Installation und Treiber eine Netzwerkverbindung über USB:
+
+- **USB-Tethering vom Handy:** Handy per Datenkabel anschließen, dann Android: Einstellungen →
+  Netzwerk & Internet → Hotspot & Tethering → *USB-Tethering* (Samsung: Verbindungen → Mobile
+  Hotspot und Tethering); iPhone: *Persönlicher Hotspot* an, „Vertrauen“ bestätigen.
+  Android teilt dabei auch sein WLAN, ohne Datenvolumen.
+- **oder USB-LAN-Adapter** mit Kabel zum Router.
+
+Das Handy bzw. der Router vergibt die IP-Adresse, der USB-Stick und NetworkManager übernehmen sie
+automatisch. Prüfen mit `ip -br addr` (neuer Anschluss `usb0`/`enp…` mit Adresse) und
+`ping -c 3 archlinux.org`.
+
+**Bei der Installation:** In `archinstall` als Netzwerk *NetworkManager* wählen und unter
+*Zusätzliche Pakete* `broadcom-wl` eintragen (bei `linux-lts` stattdessen `broadcom-wl-dkms`
+und `linux-lts-headers`). Dann geht WLAN nach dem Neustart direkt.
+
+**Treiber nachträglich installieren** (installiertes System, Internet per USB):
+
+```bash
+sudo pacman -Syu broadcom-wl            # bei linux-lts: broadcom-wl-dkms linux-lts-headers
+sudo modprobe -r b43 bcma ssb 2>/dev/null; sudo modprobe wl   # oder einfach neu starten
+nmcli device wifi connect "DEIN_WLAN_NAME" --ask
+```
+
+Wenn `pacman -Syu` einen neuen Kernel installiert hat, lädt `wl` erst nach einem Neustart.
+Danach kann das USB-Kabel ab.
+
+**USB-Stick mit Treiber (optional):** Mit `archiso` lässt sich eine eigene Arch-ISO bauen, die
+`broadcom-wl` enthält (auf einem laufenden Arch-Rechner):
+
+```bash
+sudo pacman -S archiso
+cp -r /usr/share/archiso/configs/releng ~/archlive
+echo broadcom-wl >> ~/archlive/packages.x86_64
+sudo mkarchiso -v -w /tmp/archiso-work -o ~/iso ~/archlive
+```
+
+Die fertige ISO aus `~/iso/` wie gewohnt auf den Stick schreiben. Dann geht `iwctl` schon auf dem
+Stick; `broadcom-wl` muss trotzdem in `archinstall` mitinstalliert werden.
+
 ### Kein Internet trotz Kabel („Temporärer Fehler bei der Namensauflösung“)
 
 Dann läuft kein Dienst, der per DHCP eine IP-Adresse holt und den DNS-Server einträgt.
