@@ -22,6 +22,15 @@ exit
 sudo loadkeys de       # entfällt, wenn in archinstall "de" gewählt
 ```
 
+Mac-Tastatur (kein AltGr): **rechte Option-Taste** wirkt als AltGr.
+
+| Zeichen | Tasten |
+|---|---|
+| `~` | rechte Option + `+` (rechts neben Ü) |
+| `\|` | rechte Option + `<` |
+| `@` | rechte Option + `Q` |
+| `~` geht gar nicht | `$HOME` statt `~` schreiben |
+
 ## 3. Internet
 
 ```bash
