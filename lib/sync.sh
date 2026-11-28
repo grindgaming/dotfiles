@@ -37,9 +37,7 @@ sync_apply_home() {
         "${srcs[@]}" "$HOME/"
     rm -f "$hostex"
     [[ -n $dry ]] && return 0
-    if [[ -d $(host_dir)/home ]]; then
-        rsync -a --keep-dirlinks --backup --backup-dir="$backup_dir" "$(host_dir)/home/" "$HOME/"
-    fi
+    apply_host_files "$backup_dir"
     [[ -d $backup_dir ]] && info "Ersetzte/gelöschte Dateien gesichert in $backup_dir"
     return 0
 }
