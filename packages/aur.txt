@@ -1,5 +1,4 @@
 cyberghostvpn
-cyberghostvpn-gui
 kora-icon-theme
 mpvpaper
 yay
