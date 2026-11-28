@@ -42,6 +42,10 @@ ping -c 3 archlinux.org
 
   Bequemer mit Menü: `nmtui`.
 
+  WLAN-Name mit `!` (z.B. `FRITZ!Box 6670 JU`): in **einfache** Anführungszeichen setzen,
+  sonst meldet bash `event not found`: `nmcli device wifi connect 'FRITZ!Box 6670 JU' --ask`.
+  Groß-/Kleinschreibung und Leerzeichen genau wie in `nmcli device wifi list`.
+
 ### WLAN mit `iwctl` (Live-ISO, z.B. vor `archinstall`)
 
 Am einfachsten, wenn kein Kabel da ist. `iwctl` gehört zu `iwd` und ist auf dem Arch-USB-Stick
