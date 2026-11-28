@@ -205,6 +205,7 @@ ssh -T git@github.com            # einmal "yes"
 | AUR-Paket schlägt fehl | Skript macht weiter, Liste am Ende; `yay -S paketname` |
 | Pakete „übersprungen“ | gibt es auf dieser Hardware nicht (z.B. `lib32-*` auf ARM), gewollt |
 | „signature … is unknown trust“ / „ungültiges oder beschädigtes Paket“ | meist falsche Uhrzeit: `timedatectl` prüfen, `sudo pacman -Sy archlinux-keyring`, Skript neu starten |
+| Nach Login „Emergency Mode … module 'monitors' not found“ (neuer Rechner ohne `hosts/<rechner>/`) | Terminal mit Super+Q (Mac: Cmd+Q), dann `echo 'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })' > ~/.config/hypr/monitors.lua` und `hyprctl reload`. Laptop: zusätzlich `cp ~/dotfiles/hosts/ideapad/home/.config/hypr/hypridle.conf ~/.config/hypr/`. Danach `dotfiles backup`, legt `hosts/<rechner>/` an. |
 | Skript bricht ab | `~/dotfiles/install.sh` erneut starten, Installiertes wird übersprungen |
 | Ältere Nvidia (vor RTX 20xx/GTX 16xx) | `nvidia-open-dkms` passt nicht → Legacy-Treiber aus dem AUR |
 | Dateien überschrieben | `$HOME`: `~/.dotfiles-backup/<datum>/`; `/etc`: Endung `.dotfiles-bak` |
