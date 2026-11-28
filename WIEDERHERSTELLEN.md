@@ -1,119 +1,93 @@
 # Wiederherstellen auf einer frischen Arch-Installation
 
-Voraussetzung: Arch ist installiert (z.B. mit `archinstall`), der Rechner ist neu gestartet
-und der USB-Stick entfernt. Das Repo ist öffentlich, der Klon funktioniert also ohne GitHub-Login.
+Voraussetzung: Arch installiert (z.B. `archinstall`), neu gestartet, USB-Stick ab.
+Repo ist öffentlich, Klonen ohne GitHub-Login.
 
-## 1. Als normaler Benutzer anmelden
+## 1. Anmelden
 
-Auf der Konsole mit dem **normalen Benutzer** anmelden, nicht als `root`. Das Skript verweigert sonst den Start.
+Als **normaler Benutzer**, nicht `root` (sonst startet das Skript nicht).
 
-Falls bei der Installation **kein** Benutzer angelegt wurde, als `root` anmelden und ausführen:
+Kein Benutzer angelegt? Als `root`:
 
 ```bash
 useradd -m -G wheel BENUTZERNAME
 passwd BENUTZERNAME
-EDITOR=nano visudo     # Zeile "# %wheel ALL=(ALL:ALL) ALL" auskommentieren (# entfernen), speichern
+EDITOR=nano visudo     # "# %wheel ALL=(ALL:ALL) ALL" → # entfernen, speichern
 exit
 ```
 
-Danach als dieser Benutzer anmelden.
-
-## 2. Deutsche Tastatur für die Konsole
+## 2. Deutsche Tastatur
 
 ```bash
-sudo loadkeys de
+sudo loadkeys de       # entfällt, wenn in archinstall "de" gewählt
 ```
 
-Nicht nötig, wenn in `archinstall` schon `de` gewählt wurde.
-
-## 3. Internet prüfen
+## 3. Internet
 
 ```bash
 ping -c 3 archlinux.org
 ```
 
-- **LAN-Kabel:** klappt meist sofort.
-- **WLAN** (bei Installation mit NetworkManager):
+| Wenn | Dann |
+|---|---|
+| Ping klappt | weiter mit 4 |
+| LAN-Kabel steckt, kein Internet | [Kein Internet trotz Kabel](#kein-internet-trotz-kabel) |
+| WLAN, installiertes System | `nmcli device wifi list`, dann `nmcli device wifi connect 'WLAN_NAME' --ask` (oder Menü: `nmtui`) |
+| WLAN, Live-USB-Stick | [WLAN mit iwctl](#wlan-mit-iwctl-live-usb-stick) |
+| WLAN-Name enthält `!` (z.B. `FRITZ!Box 6670 JU`) | **einfache** Anführungszeichen, sonst `bash: event not found`; Schreibweise genau wie in der Liste |
+| `iwctl device list` / `nmcli device` zeigt kein WLAN | Treiber fehlt → [Ältere MacBooks](#ältere-macbooks-broadcom-wlan) |
 
-  ```bash
-  nmcli device wifi list
-  nmcli device wifi connect "DEIN_WLAN_NAME" --ask
-  ```
+### WLAN mit iwctl (Live-USB-Stick)
 
-  Bequemer mit Menü: `nmtui`.
-
-  WLAN-Name mit `!` (z.B. `FRITZ!Box 6670 JU`): in **einfache** Anführungszeichen setzen,
-  sonst meldet bash `event not found`: `nmcli device wifi connect 'FRITZ!Box 6670 JU' --ask`.
-  Groß-/Kleinschreibung und Leerzeichen genau wie in `nmcli device wifi list`.
-
-### WLAN mit `iwctl` (Live-ISO, z.B. vor `archinstall`)
-
-Am einfachsten, wenn kein Kabel da ist. `iwctl` gehört zu `iwd` und ist auf dem Arch-USB-Stick
-immer dabei; auf dem installierten System nur, wenn `iwd` mitinstalliert wurde.
+`iwctl` ist auf dem Stick immer dabei, im installierten System nur mit Paket `iwd`.
 
 ```bash
-rfkill unblock all                 # falls WLAN gesperrt ist
-iwctl device list                  # Name des WLAN-Geräts, meist wlan0
+rfkill unblock all
+iwctl device list                         # Gerätename, meist wlan0
 iwctl station wlan0 scan
-iwctl station wlan0 get-networks   # verfügbare WLANs
-iwctl station wlan0 connect "DEIN_WLAN_NAME"   # fragt nach dem Passwort
-ping -c 3 archlinux.org
+iwctl station wlan0 get-networks
+iwctl station wlan0 connect 'WLAN_NAME'   # fragt nach dem Passwort
 ```
 
-Interaktiv geht es auch: `iwctl` starten, dieselben Befehle ohne `iwctl` davor, `exit` zum Beenden.
+Im installierten System nicht `iwd` und NetworkManager gleichzeitig laufen lassen.
 
-- **`device list` ist leer:** Es fehlt der WLAN-Treiber, siehe nächster Abschnitt.
-- Auf dem installierten System nicht `iwd` und NetworkManager gleichzeitig laufen lassen;
-  dort WLAN wie oben mit `nmcli`/`nmtui` einrichten.
+### Ältere MacBooks (Broadcom-WLAN)
 
-### Ältere MacBooks (z.B. MacBook Air 2014): WLAN geht erst mit Treiber
+Z.B. MacBook Air 2014. Treiber `broadcom-wl` fehlt **auf dem Stick und im frischen System** →
+WLAN geht erst mit Treiber. Bis dahin Internet per USB:
 
-Diese MacBooks haben einen Broadcom-WLAN-Chip. Der nötige Treiber `broadcom-wl` ist **weder auf
-dem Arch-USB-Stick noch im frisch installierten System**. Das WLAN funktioniert also zunächst
-**auf keinen Fall**, man braucht für Installation und Treiber eine Netzwerkverbindung über USB:
+| Wenn | Dann |
+|---|---|
+| Android | Datenkabel, Einstellungen → Netzwerk & Internet → Hotspot & Tethering → *USB-Tethering* (Samsung: Verbindungen → Mobile Hotspot und Tethering). Teilt auch das WLAN des Handys. |
+| iPhone | *Persönlicher Hotspot* an, „Vertrauen“ bestätigen (nutzt mobile Daten) |
+| USB-LAN-Adapter | Kabel zum Router |
+| Neuer Anschluss (`usb0`/`enp…` in `ip -br addr`) ohne IP | Tethering aus/an, Kabel neu stecken |
 
-- **USB-Tethering vom Handy:** Handy per Datenkabel anschließen, dann Android: Einstellungen →
-  Netzwerk & Internet → Hotspot & Tethering → *USB-Tethering* (Samsung: Verbindungen → Mobile
-  Hotspot und Tethering); iPhone: *Persönlicher Hotspot* an, „Vertrauen“ bestätigen.
-  Android teilt dabei auch sein WLAN, ohne Datenvolumen.
-- **oder USB-LAN-Adapter** mit Kabel zum Router.
+**Bei der Installation (`archinstall`):** Netzwerk *NetworkManager*, Zusätzliche Pakete `broadcom-wl`.
 
-Das Handy bzw. der Router vergibt die IP-Adresse, der USB-Stick und NetworkManager übernehmen sie
-automatisch. Prüfen mit `ip -br addr` (neuer Anschluss `usb0`/`enp…` mit Adresse) und
-`ping -c 3 archlinux.org`.
-
-**Bei der Installation:** In `archinstall` als Netzwerk *NetworkManager* wählen und unter
-*Zusätzliche Pakete* `broadcom-wl` eintragen (bei `linux-lts` stattdessen `broadcom-wl-dkms`
-und `linux-lts-headers`). Dann geht WLAN nach dem Neustart direkt.
-
-**Treiber nachträglich installieren** (installiertes System, Internet per USB):
+**Nachträglich**, erst Kernel prüfen:
 
 ```bash
-sudo pacman -Syu broadcom-wl            # bei linux-lts: broadcom-wl-dkms linux-lts-headers
-sudo modprobe -r b43 bcma ssb 2>/dev/null; sudo modprobe wl   # oder einfach neu starten
-nmcli device wifi connect "DEIN_WLAN_NAME" --ask
+uname -r     # endet auf -lts → linux-lts, sonst (z.B. 7.3.6-arch1-1) → linux
 ```
 
-Wenn `pacman -Syu` einen neuen Kernel installiert hat, lädt `wl` erst nach einem Neustart.
-
-Welcher Kernel läuft, zeigt `uname -r`: endet er auf `-lts`, ist es `linux-lts`, sonst (z.B.
-`7.3.6-arch1-1`) der normale `linux`. Die Header müssen zum **laufenden** Kernel passen.
-
-**`modprobe: FATAL: Module wl not found`:** Der Treiber wurde nicht für den laufenden Kernel
-gebaut, meist weil `broadcom-wl-dkms` mit den falschen Headern installiert wurde. Lösung:
+| Kernel | Installieren |
+|---|---|
+| `linux` | `sudo pacman -Syu broadcom-wl` |
+| `linux-lts` | `sudo pacman -Syu broadcom-wl-dkms linux-lts-headers` |
 
 ```bash
-sudo pacman -S linux-headers     # Header zum normalen Kernel; DKMS baut wl dabei automatisch
-dkms status                      # muss "broadcom-wl, ..., <uname -r>, x86_64: installed" zeigen
-sudo modprobe wl
+sudo modprobe -r b43 bcma ssb 2>/dev/null; sudo modprobe wl
+nmcli device wifi connect 'WLAN_NAME' --ask
 ```
 
-Alternativ ohne DKMS: `sudo pacman -R broadcom-wl-dkms` und `sudo pacman -S broadcom-wl`
-(fertig gebaut für den normalen Kernel), dann neu starten.
-Danach kann das USB-Kabel ab.
+| Wenn | Dann |
+|---|---|
+| `pacman -Syu` hat neuen Kernel installiert | neu starten statt `modprobe` |
+| `modprobe: FATAL: Module wl not found` | Treiber für falschen Kernel gebaut. `sudo pacman -S linux-headers` (DKMS baut automatisch), `dkms status` muss `installed` für `uname -r` zeigen, dann `sudo modprobe wl`. Oder: `sudo pacman -R broadcom-wl-dkms && sudo pacman -S broadcom-wl`, neu starten. |
+| WLAN verbunden | USB-Kabel kann ab |
 
-**USB-Stick mit Treiber (optional):** Mit `archiso` lässt sich eine eigene Arch-ISO bauen, die
-`broadcom-wl` enthält (auf einem laufenden Arch-Rechner):
+**Stick mit Treiber (optional)**, auf einem Arch-Rechner bauen:
 
 ```bash
 sudo pacman -S archiso
@@ -122,37 +96,33 @@ echo broadcom-wl >> ~/archlive/packages.x86_64
 sudo mkarchiso -v -w /tmp/archiso-work -o ~/iso ~/archlive
 ```
 
-Die fertige ISO aus `~/iso/` wie gewohnt auf den Stick schreiben. Dann geht `iwctl` schon auf dem
-Stick; `broadcom-wl` muss trotzdem in `archinstall` mitinstalliert werden.
+ISO aus `~/iso/` auf den Stick. Dann geht `iwctl` schon dort; `broadcom-wl` trotzdem in `archinstall` mitinstallieren.
 
-### Kein Internet trotz Kabel („Temporärer Fehler bei der Namensauflösung“)
+### Kein Internet trotz Kabel
 
-Dann läuft kein Dienst, der per DHCP eine IP-Adresse holt und den DNS-Server einträgt.
-Die Live-ISO erledigt das automatisch, das installierte System nicht. Zuerst prüfen:
+Symptom: „Temporärer Fehler bei der Namensauflösung“. Ursache: kein DHCP-Dienst im installierten System.
 
 ```bash
-ip -br addr            # hat das LAN-Interface (z.B. enp3s0) eine 192.168.x.x-Adresse?
-ping -c 2 1.1.1.1      # klappt der Ping auf eine reine IP-Adresse?
-cat /etc/resolv.conf   # steht dort ein nameserver?
+ip -br addr            # LAN-Interface (z.B. enp3s0) mit 192.168.x.x?
+ping -c 2 1.1.1.1      # reine IP erreichbar?
+cat /etc/resolv.conf   # nameserver eingetragen?
 ```
 
-- **Keine IP-Adresse:** Es fehlt ein Netzwerkdienst. Eine der beiden Varianten unten einrichten.
-- **IP vorhanden und `1.1.1.1` erreichbar, aber kein DNS:** `/etc/resolv.conf` ist leer oder
-  zeigt ins Leere. Bei Variante B den Symlink setzen; bei Variante A NetworkManager neu starten.
+| Wenn | Dann |
+|---|---|
+| keine IP-Adresse | Variante A **oder** B einrichten, nie beide |
+| IP da, `1.1.1.1` erreichbar, kein DNS | A: NetworkManager neu starten; B: Symlink (letzte Zeile unten) setzen |
 
-Nur **eine** Variante verwenden, nie beide gleichzeitig.
-
-#### Variante A: NetworkManager (empfohlen, kann auch WLAN)
+**A: NetworkManager** (empfohlen, auch WLAN):
 
 ```bash
 sudo systemctl enable --now NetworkManager
 ```
 
-Falls NetworkManager nicht installiert ist (`Unit NetworkManager.service not found`), lässt er sich
-ohne Internet nicht nachinstallieren. Dann vom Arch-USB-Stick booten und dort installieren:
+`Unit NetworkManager.service not found` → vom Arch-Stick booten:
 
 ```bash
-mount /dev/ROOT-PARTITION /mnt    # z.B. /dev/nvme0n1p2; bei btrfs zusätzlich: -o subvol=@
+mount /dev/ROOT-PARTITION /mnt    # z.B. /dev/nvme0n1p2; btrfs zusätzlich: -o subvol=@
 arch-chroot /mnt
 pacman -S networkmanager
 systemctl enable NetworkManager
@@ -161,7 +131,7 @@ umount -R /mnt
 reboot
 ```
 
-#### Variante B: systemd-networkd (schon vorinstalliert, nur LAN)
+**B: systemd-networkd** (vorinstalliert, nur LAN):
 
 ```bash
 sudo tee /etc/systemd/network/20-wired.network <<'EOF'
@@ -175,73 +145,62 @@ sudo systemctl enable --now systemd-networkd systemd-resolved
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 ```
 
-Danach erneut `ping -c 3 archlinux.org` ausführen.
+Danach erneut `ping -c 3 archlinux.org`.
 
-## 4. Git installieren und Repo klonen
+## 4. Git und Repo
 
 ```bash
 sudo pacman -Syu --needed git
 git clone https://github.com/grindgaming/dotfiles ~/dotfiles
 ```
 
-## 5. Wiederherstellung starten
+## 5. Wiederherstellen
 
 ```bash
 ~/dotfiles/install.sh
 ```
 
-Das dauert je nach Internet und Rechner etwa **15–40 Minuten**, weil AUR-Pakete kompiliert werden.
-Das Skript läuft ohne pacman-/yay-Rückfragen durch: Signaturschlüssel werden zuerst aktualisiert,
-Paketkonflikte (z.B. `pulseaudio` / `pipewire-pulse`) automatisch zugunsten des Backups gelöst.
-Es gibt nur diese Eingaben:
+Dauer 15–40 Min. (AUR-Pakete werden kompiliert). Keine pacman-/yay-Rückfragen; Schlüssel werden
+zuerst aktualisiert, Paketkonflikte (z.B. `pulseaudio`/`pipewire-pulse`) zugunsten des Backups gelöst.
 
 | Frage | Antwort |
 |---|---|
-| sudo-Passwort (einmal am Anfang) | eigenes Passwort |
-| NVIDIA-Karte deaktivieren? (nur bei NVIDIA + AMD-iGPU) | **j** = schläft dauerhaft, alles auf der iGPU; **Enter** = wie im Backup |
-| Hardwarelast reduzieren? | **j** = Performance (kein Blur, keine Schatten, kein Live-Wallpaper-Autostart), **n** = Beauty; **Enter** = wie im Backup |
-| mainMod-Taste | **1** Alt, **2** Super, **Enter** = wie im Backup |
+| sudo-Passwort (einmal) | eigenes Passwort |
+| NVIDIA deaktivieren? (nur NVIDIA + AMD-iGPU) | **j** = schläft dauerhaft, alles auf iGPU; **Enter** = wie Backup |
+| Hardwarelast reduzieren? | **j** = Performance (kein Blur, keine Schatten, kein Live-Wallpaper-Autostart); **n** = Beauty; **Enter** = wie Backup |
+| mainMod-Taste | **1** Alt, **2** Super, **Enter** = wie Backup |
 
-Komplett ohne Eingaben (alles wie im Backup): `~/dotfiles/install.sh -y --mainmod alt` (oder `super`).
-Pakete, die sich nicht installieren ließen, stehen am Ende in einer Zusammenfassung.
-
-Wenn am Ende **„System wiederhergestellt! Bitte neu starten.“** erscheint:
-
-```bash
-reboot
-```
+Ohne Eingaben: `~/dotfiles/install.sh -y --mainmod alt` (oder `super`).
+Am Ende Liste fehlgeschlagener Pakete; bei **„System wiederhergestellt! Bitte neu starten.“** → `reboot`.
 
 ## 6. Nach dem Neustart
 
-Es erscheint der **SDDM-Anmeldebildschirm**: anmelden und **Hyprland** wählen.
+SDDM → anmelden, **Hyprland** wählen.
 
-- **Monitor einstellen**, falls Auflösung oder Anordnung nicht stimmen: `nwg-displays` oder die ML4W-Settings.
-- **Backups pushen:** Der Klon nutzt HTTPS, und SSH-Keys werden bewusst nicht gesichert.
-  Einen neuen Key für diesen Rechner anlegen:
+| Wenn | Dann |
+|---|---|
+| Auflösung/Anordnung falsch | `nwg-displays` oder ML4W-Settings |
+| `dotfiles backup` soll pushen | SSH-Key anlegen (Keys werden nicht gesichert, Klon nutzt HTTPS): |
 
-  ```bash
-  ssh-keygen -t ed25519 -C "$USER@$(uname -n)" -N "" -f ~/.ssh/id_ed25519
-  cat ~/.ssh/id_ed25519.pub        # bei https://github.com/settings/ssh/new eintragen
-  cd ~/dotfiles && git remote set-url origin git@github.com:grindgaming/dotfiles.git
-  ssh -T git@github.com            # Test; einmal "yes" eingeben
-  ```
-
-  Danach funktioniert `dotfiles backup`.
+```bash
+ssh-keygen -t ed25519 -C "$USER@$(uname -n)" -N "" -f ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub        # bei https://github.com/settings/ssh/new eintragen
+cd ~/dotfiles && git remote set-url origin git@github.com:grindgaming/dotfiles.git
+ssh -T git@github.com            # einmal "yes"
+```
 
 ## Falls etwas schiefgeht
 
-- **AUR-Paket schlägt fehl:** Das Skript macht weiter und listet die fehlgeschlagenen Pakete am Ende auf.
-  Nachinstallieren mit `yay -S paketname`.
-- **Pakete werden „übersprungen“:** Diese gibt es auf dieser Hardware nicht (z.B. `lib32-*` auf ARM). Gewollt.
-- **„signature … is unknown trust“ / „ungültiges oder beschädigtes Paket“:** Das Skript aktualisiert
-  den Schlüsselbund automatisch. Tritt der Fehler trotzdem auf, stimmt meist die Uhrzeit nicht:
-  `timedatectl` prüfen, dann `sudo pacman -Sy archlinux-keyring` und das Skript erneut starten.
-- **Skript bricht ab:** Einfach erneut `~/dotfiles/install.sh` starten. Bereits Installiertes wird übersprungen.
-- **Ältere Nvidia-Karte** (vor RTX 20xx/GTX 16xx): Der automatisch gewählte Treiber `nvidia-open-dkms`
-  passt nicht, hier wird ein Legacy-Treiber aus dem AUR benötigt.
-- **Überschriebene Dateien:** Was beim Wiederherstellen in `$HOME` ersetzt wurde, liegt in
-  `~/.dotfiles-backup/<datum>/`. Ersetzte Dateien in `/etc` haben die Endung `.dotfiles-bak`.
-- **Keine Statusleiste oben (auch kein Dock):** Quickshell wurde nicht gestartet. Meist fehlt
-  `~/.mydotfiles`, wohin `hypr/conf/autostart.lua` das Log von `ml4w-autostart` schreibt (legt das
-  Restore seit 2026-11 selbst an). Sofort beheben ohne Neuanmeldung:
-  `mkdir -p ~/.mydotfiles && hyprctl dispatch 'hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-autostart > ~/.mydotfiles/ml4w-autostart.log 2>&1")'`
+| Wenn | Dann |
+|---|---|
+| AUR-Paket schlägt fehl | Skript macht weiter, Liste am Ende; `yay -S paketname` |
+| Pakete „übersprungen“ | gibt es auf dieser Hardware nicht (z.B. `lib32-*` auf ARM), gewollt |
+| „signature … is unknown trust“ / „ungültiges oder beschädigtes Paket“ | meist falsche Uhrzeit: `timedatectl` prüfen, `sudo pacman -Sy archlinux-keyring`, Skript neu starten |
+| Skript bricht ab | `~/dotfiles/install.sh` erneut starten, Installiertes wird übersprungen |
+| Ältere Nvidia (vor RTX 20xx/GTX 16xx) | `nvidia-open-dkms` passt nicht → Legacy-Treiber aus dem AUR |
+| Dateien überschrieben | `$HOME`: `~/.dotfiles-backup/<datum>/`; `/etc`: Endung `.dotfiles-bak` |
+| Keine Statusleiste/kein Dock | Quickshell nicht gestartet, meist fehlt `~/.mydotfiles` (Log von `ml4w-autostart`; Restore legt es seit 2026-11 selbst an). Sofort beheben: |
+
+```bash
+mkdir -p ~/.mydotfiles && hyprctl dispatch 'hl.dsp.exec_cmd("~/.config/ml4w/scripts/ml4w-autostart > ~/.mydotfiles/ml4w-autostart.log 2>&1")'
+```
